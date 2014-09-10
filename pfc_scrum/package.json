@@ -6,14 +6,23 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "body-parser": "~1.0.0",
+    "async": "*",
+    "bcrypt-nodejs": "*",
+    "body-parser": "*",
     "cookie-parser": "~1.0.1",
     "debug": "~0.7.4",
     "express": "*",
+    "express-session": "*",
+    "glob": "*",
     "hjs": "~0.0.6",
+    "lodash": "*",
+    "method-override": "*",
     "mongoose": "*",
     "morgan": "~1.0.0",
-    "socket.io": "*",
-    "static-favicon": "~1.0.0"
+    "oauth2orize": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "static-favicon": "~1.0.0",
+    "validator": "*"
   }
 }

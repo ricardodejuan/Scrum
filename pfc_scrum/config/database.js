@@ -3,12 +3,12 @@
  */
 var mongoose = require('mongoose');
 
-module.exports = function (app, config) {
+module.exports = function (config) {
 
     var db = mongoose.connect(config.db, function (err, res) {
         if (err) throw err;
         console.log('Connected to DB');
     });
-    app.set('db', db);
 
-}
+    return db;
+};

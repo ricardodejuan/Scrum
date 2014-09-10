@@ -1,36 +1,19 @@
 var debug = require('debug')('pfc_scrum');
-var express = require('express');
-var env = process.env.NODE_ENV || 'development';
-var config = require('./config/config')[env];
-
-var app = express();
-
-var expressConf = require('./config/express');
-var db = require('./config/database');
-var routeRESTAPI = require('./config/routes');
-
-// Dynamically include routes (Controller)
-/*fs.readdirSync(path.join(__dirname, 'app/controllers')).forEach(function (filename) {
-    if(filename.indexOf('.js')) {
-        route = require(path.join(__dirname, 'app/controllers/' + filename));
-        route.controller(app);
-    }
-});*/
-
-// Express settings
-expressConf(app, config);
+var init = require('./config/init')();
+var config = require('./config/config');
 
 // Database Connection
-db(app, config);
+var db = require('./config/database')(config);
 
-// Routes
-routeRESTAPI(app);
+// Express settings
+var app = require('./config/express')(db);
+
+// Bootstrap passport config
+require('./config/passport')();
 
 // Start the app by listening on <port>
-var port = process.env.PORT || 3000;
-app.set('port', port);
-app.listen(app.get('port'), function() {
-    debug('Express server listening on port ' + port);
+app.listen(config.port, function() {
+    debug('Scrum server listening on port ' + config.port);
 });
 
 module.exports = app;
