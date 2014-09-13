@@ -12,10 +12,13 @@ var session = require('express-session');
 var methodOverride = require('method-override');
 var config = require('./config');
 var morgan = require('morgan');
+var consolidate = require('consolidate');
+var MongoStore = require('connect-mongo')(session);
+var flash = require('connect-flash');
+var helmet = require('helmet');
 
 
-
-    module.exports = function (db) {
+module.exports = function (db) {
 
     var app = express();
 
@@ -28,8 +31,8 @@ var morgan = require('morgan');
     app.locals.title = config.app.title;
     app.locals.description = config.app.description;
     app.locals.keywords = config.app.keywords;
-    //app.locals.jsFiles = config.getJavaScriptAssets();
-    //app.locals.cssFiles = config.getCSSAssets();
+    app.locals.jsFiles = config.getJavaScriptAssets();
+    app.locals.cssFiles = config.getCSSAssets();
 
     // Passing the request url to environment locals
     app.use(function(req, res, next) {
@@ -37,26 +40,54 @@ var morgan = require('morgan');
         next();
     });
 
+    // Showing stack errors
+    app.set('showStackError', true);
+
+    // Set swig as the template engine
+    app.engine('server.view.html', consolidate[config.templateEngine]);
+
     // view engine setup
+    app.set('view engine', 'server.view.html');
+    // Specify the views folder
     app.set('views', path.resolve('./app/views'));
-    app.set('view engine', 'hjs');
 
     app.use(favicon());
     app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(methodOverride());
+
+    // Enable jsonp
+    app.enable('jsonp callback');
+
+    // CookieParser should be above session
     app.use(cookieParser());
 
     // Use express session support since OAuth2orize requires it
     app.use(session({
-        secret: 'Super Secret Session Key',
         saveUninitialized: true,
-        resave: true
+        resave: true,
+        secret: config.sessionSecret,
+        store: new MongoStore({
+            db: db.connection.db,
+            collection: config.sessionCollection
+        })
     }));
 
+    // use passport session
     app.use(passport.initialize());
     app.use(passport.session()); // persistent login sessions
 
+    // connect flash for flash messages stored in session
+    app.use(flash());
+
+    // Use helmet to secure Express headers
+    app.use(helmet.xframe());
+    app.use(helmet.xssFilter());
+    app.use(helmet.nosniff());
+    app.use(helmet.ienoopen());
+    app.disable('x-powered-by');
+
+    // Setting the app router and static folder
     app.use(express.static(path.resolve('./public')));
 
     // Globbing routing files
@@ -74,9 +105,6 @@ var morgan = require('morgan');
     } else if (process.env.NODE_ENV === 'production') {
         app.locals.cache = 'memory';
     }
-
-    // Enable jsonp
-    app.enable('jsonp callback');
 
     app.use(function(err, req, res, next) {
         // If the error object doesn't exists

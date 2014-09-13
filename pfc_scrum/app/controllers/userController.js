@@ -4,7 +4,7 @@
 var validator = require('validator');
 var async = require('async');
 
-var User = require('../models/user');
+var User = require('../models/user.server.model');
 
 module.exports = {
 

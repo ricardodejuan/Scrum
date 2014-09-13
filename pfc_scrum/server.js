@@ -12,8 +12,20 @@ var app = require('./config/express')(db);
 require('./config/passport')();
 
 // Start the app by listening on <port>
-app.listen(config.port, function() {
+var server = app.listen(config.port, function() {
     debug('Scrum server listening on port ' + config.port);
+});
+
+var io = require('socket.io').listen(server);
+
+
+io.sockets.on('connection', function(socket) {
+    socket.emit('news', {
+        hello: 'world'
+    });
+    socket.on('my other event', function(data) {
+        console.log(data);
+    });
 });
 
 module.exports = app;
