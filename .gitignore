@@ -28,4 +28,4 @@ node_modules
 .idea/
 
 # Bower
-public/lib
+pfc_scrum/public/lib/
