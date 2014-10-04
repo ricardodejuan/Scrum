@@ -8,6 +8,7 @@
   "dependencies": {
     "async": "*",
     "body-parser": "*",
+    "compression": "*",
     "connect-flash": "*",
     "connect-mongo": "*",
     "consolidate": "*",

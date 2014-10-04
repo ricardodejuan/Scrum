@@ -16,6 +16,8 @@ var consolidate = require('consolidate');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var helmet = require('helmet');
+var compress = require('compression');
+
 
 
 module.exports = function (db) {
@@ -40,6 +42,14 @@ module.exports = function (db) {
         next();
     });
 
+    // Should be placed before express.static
+    app.use(compress({
+        filter: function(req, res) {
+            return (/json|text|javascript|css/).test(res.getHeader('Content-Type'));
+        },
+        level: 9
+    }));
+
     // Showing stack errors
     app.set('showStackError', true);
 
@@ -53,6 +63,10 @@ module.exports = function (db) {
 
     app.use(favicon());
     app.use(logger('dev'));
+    // Request body parsing middleware should be above methodOverride
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
     app.use(bodyParser.json());
     app.use(methodOverride());
 
