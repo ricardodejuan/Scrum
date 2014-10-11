@@ -12,7 +12,7 @@ var _ = require('lodash'),
     User = mongoose.model('User');
 
 /**
- * Update user details
+ * Show users
  */
 exports.list = function(req, res) {
     User.find().exec(function (err, users) {

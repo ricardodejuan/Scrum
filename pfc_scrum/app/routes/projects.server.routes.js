@@ -16,7 +16,7 @@ module.exports = function(app) {
         .post(users.requiresLogin, projects.create);
 
     app.route('/projects/:projectId')
-        .get(users.requiresLogin, projects.hasAuthorization, projects.get)
+        .get(users.requiresLogin, projects.hasAuthorization, projects.load)
         .put(users.requiresLogin, projects.hasAuthorization, projects.update);
 
     app.route('/projects/:projectId/join')

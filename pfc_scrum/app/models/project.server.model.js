@@ -10,6 +10,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var async = require('async');
 var _ = require('lodash');
+var ObjectId = mongoose.Types.ObjectId;
 
 
 /**
@@ -69,12 +70,6 @@ var ProjectSchema = new Schema({
         }
     },
     productBackLog: {
-        deliveryNumber: {
-            type: Number
-        },
-        releaseNumber: {
-            type: Number
-        },
         risks: [{
             type: String,
             trim: true
@@ -89,14 +84,14 @@ ProjectSchema.methods = {
         var usersToGo = users.length;
 
         _.forEach(users, function (user) {
-            var index = _.findIndex(_this.users, { userId: user.userId });
-            if (~index) {
-                callback(new Error('User is already joined'));
-            } else {
-                _this.users.push(user);
+            var index = _.findIndex(_this.users, { 'userId': new ObjectId(user.userId) });
+            if (index === -1) {
+                _this.users.addToSet (user);
                 if (--usersToGo === 0) {
                     _this.save(callback);
                 }
+            } else {
+                callback(new Error('User is already joined'));
             }
         });
     },

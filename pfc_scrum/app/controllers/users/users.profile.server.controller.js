@@ -12,6 +12,24 @@ var _ = require('lodash'),
     User = mongoose.model('User');
 
 /**
+ * Get specific user
+ */
+exports.load = function (req, res) {
+    console.log('load');
+    var query = { _id: req.params.userId };
+
+    User.findOne(query).exec(function (err, user) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp(user);
+        }
+    });
+};
+
+/**
  * Update user details
  */
 exports.update = function(req, res) {

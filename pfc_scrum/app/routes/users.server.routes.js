@@ -16,6 +16,9 @@ module.exports = function(app) {
     // Show users
     app.route('/users').get(users.requiresLogin, users.list);
 
+    // Show specific user
+    app.route('/users/:userId').get(users.requiresLogin, users.load);
+
     // Setting up the users profile api
     app.route('/users/me').get(users.me);
     app.route('/users').put(users.update);
@@ -31,6 +34,6 @@ module.exports = function(app) {
     app.route('/auth/signin').post(users.signin);
     app.route('/auth/signout').get(users.signout);
 
-    // Finish by binding the user middleware
+    // Finish by binding the user middleware TODO review
     app.param('userId', users.userByID);
 };

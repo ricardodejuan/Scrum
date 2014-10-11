@@ -4,17 +4,17 @@
 'use strict';
 
 /**
+ * Module dependencies.
+ */
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+/**
  * A Validation function for properties
  */
 var validateProperty = function(property) {
     return (property.length);
 };
-
-/**
- * Module dependencies.
- */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
 var TaskSchema = new Schema({
     taskName: {
@@ -38,9 +38,34 @@ var TaskSchema = new Schema({
         required: true
     },
     taskRemark: [{
-        type: String
+        type: String,
+        trim: true
+    }],
+    taskRuleValidation: [{
+        type: String,
+        trim: true
     }],
     isFinished: {
         type: Boolean
+    },
+    story: {
+        type: Schema.Types.ObjectId,
+        ref: 'Story'
+    },
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    phase: {
+        phaseId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Phase'
+        },
+        order: {
+            type: Number
+        }
     }
+
 });
+
+var Task = mongoose.model('Task', TaskSchema);

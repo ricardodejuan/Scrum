@@ -20,6 +20,7 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
     var project = new Project(req.body);
     var user = req.user;
+
     project.users.push(
         {userId: user._id, admin: true, role: "TEAM"}
     );
@@ -31,7 +32,7 @@ exports.create = function(req, res) {
             });
         } else {
             user.projects.push(
-                project._id
+                doc._id
             );
             user.save(function (err) {
                 if (err) {
@@ -39,7 +40,7 @@ exports.create = function(req, res) {
                         message: errorHandler.getErrorMessage(err)
                     });
                 } else {
-                    res.jsonp(project);
+                    res.status(201).jsonp(doc);
                 }
             })
         }
@@ -52,14 +53,14 @@ exports.create = function(req, res) {
 exports.list = function(req, res) {
     var query = { 'users.userId': req.user._id };
     var projection = { projectName:1 };
-    console.log(req.param('a'));
-    Project.find(query, projection).limit(10).exec(function(err, articles) {
+
+    Project.find(query, projection).limit(10).exec(function(err, projects) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
-            res.jsonp(articles);
+            res.jsonp(projects);
         }
     });
 };
@@ -67,7 +68,7 @@ exports.list = function(req, res) {
 /**
  * Show the current article
  */
-exports.get = function(req, res) {
+exports.load = function(req, res) {
     res.jsonp(req.project);
 };
 
@@ -98,19 +99,20 @@ exports.join = function (req, res) {
     var project = req.project;
     var users = req.body.users;
     var usersToGo = users.length;
+
     project.addUsers(users, function (err) {
         if (err) {
             return res.status(400).send({message: err.message});
         } else {
             _.forEach(users, function (user) {
                 var query = { _id: user.userId };
-                var doc = { $push: {projects: project._id} };
+                var doc = { $addToSet: {projects: project._id} };
 
                 User.update(query, doc, function (err) {
                     if (err) {
                         return res.status(400).send({message: err.message});
-                    } else if (--usersToGo === 0){
-                        res.status(200).send({message: 'Users have been joined to the project'});
+                    } else if (!err && --usersToGo === 0){
+                        res.send({message: 'Users have been joined to the project'});
                     }
                 });
             });
@@ -134,7 +136,7 @@ exports.leave = function (req, res) {
                 if (err) {
                     return res.status(400).send({message: err.message});
                 } else {
-                    res.status(200).send({message: 'You have been left the project'});
+                    res.send({message: 'You have been left the project'});
                 }
             });
         }
@@ -159,16 +161,14 @@ exports.projectByID = function(req, res, next, id) {
  * Project authorization middleware
  */
 exports.hasAuthorization = function(req, res, next) {
-    var usersToGo = req.project.users.length;
+    var user = req.user;
+    var index = _.findIndex(req.project.users, { 'userId': user._id });
 
-    async.each(req.project.users, function (doc) {
-        if (req.user._id.equals(doc.userId)) {
-            next();
-        }
-        else if (--usersToGo === 0) {
-            return res.status(403).send({
-                message: 'User is not authorized'
-            });
-        }
-    });
+    if (index !== -1) {
+        next();
+    } else {
+        return res.status(403).send({
+            message: 'User is not authorized'
+        });
+    }
 };
