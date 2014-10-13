@@ -17,7 +17,14 @@ var mongoose = require('mongoose'),
  * Create a story
  */
 exports.create = function(req, res) {
-    var story = new Story(req.body.story);
+    var data = { storyTitle: req.body.storyTitle,
+                 storyDescription: req.body.storyDescription,
+                 storyValue: req.body.storyValue,
+                 storyPoint: req.body.storyPoint,
+                 storyPriority: req.body.storyPriority,
+                 projectId: req.params.projectId
+               };
+    var story = new Story(data);
 
     story.save(function(err, doc) {
         if (err) {
@@ -36,6 +43,7 @@ exports.create = function(req, res) {
  */
 exports.list = function(req, res) {
     var query = { 'projectId': req.params.projectId };
+    console.log(req.session);
 
     Story.find(query).exec(function(err, stories) {
         if (err) {
@@ -70,7 +78,12 @@ exports.load = function (req, res) {
  */
 exports.update = function (req, res) {
     var query = { _id: req.params.storyId };
-    var body = req.body.story;
+    var data = { storyTitle: req.body.storyTitle,
+                 storyDescription: req.body.storyDescription,
+                 storyValue: req.body.storyValue,
+                 storyPoint: req.body.storyPoint,
+                 storyPriority: req.body.storyPriority
+    };
 
     Story.findOne(query).exec(function (err, story) {
         if (err) {
@@ -78,7 +91,7 @@ exports.update = function (req, res) {
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
-            story = _.extend(story, body);
+            story = _.extend(story, data);
             
             story.save(function (err) {
                 if (err) {
@@ -118,7 +131,7 @@ exports.hasAuthorization = function (req, res, next) {
     var query = { _id: req.params.projectId, "users.userId": user._id};
 
     Project.findOne(query).count().exec(function(err, amount) {
-        if (err) return next(err);
+        if (err) {console.log('123'); return next(err);}
         if (!amount) return res.status(403).send({
             message: 'User is not authorized'
         });

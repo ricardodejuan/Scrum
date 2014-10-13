@@ -76,7 +76,7 @@ exports.load = function (req, res) {
 exports.update = function (req, res) {
     var query = { _id: req.params.phaseId };
     var data = { phaseName: req.body.phaseName,
-                 sprint: { order: req.body.order }
+                 sprint: { sprintId: req.params.sprintId, order: req.body.order }
                };
 
     Phase.findOne(query).exec(function (err, phase) {

@@ -10,6 +10,7 @@ var mongoose = require('mongoose'),
     errorHandler = require('./errors'),
     Sprint = mongoose.model('Sprint'),
     Project = mongoose.model('Project'),
+    Story = mongoose.model('Story'),
     _ = require('lodash');
 
 
@@ -120,6 +121,27 @@ exports.delete = function (req, res) {
             res.send({message: 'Sprint has been removed.'});
         }
     });
+};
+
+/*
+ * Sprint Backlog
+ */
+exports.backlog = function (req, res) {
+    var data = req.body.stories;
+    var query = { _id: { $in: data }, projectId: req.params.projectId  };
+    var doc = { $set: { sprintId: req.params.sprintId } };
+    var multi = { multi: true };
+
+    Story.update(query, doc, multi).exec(function (err) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.send({message: 'User stories have been added.'});
+        }
+    });
+
 };
 
 /*

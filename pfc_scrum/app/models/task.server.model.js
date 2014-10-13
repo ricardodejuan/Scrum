@@ -48,9 +48,10 @@ var TaskSchema = new Schema({
     isFinished: {
         type: Boolean
     },
-    story: {
+    storyId: {
         type: Schema.Types.ObjectId,
-        ref: 'Story'
+        ref: 'Story',
+        required: true
     },
     users: [{
         type: Schema.Types.ObjectId,

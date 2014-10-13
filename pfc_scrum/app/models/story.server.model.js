@@ -38,7 +38,6 @@ var StorySchema = new Schema({
     },
     storyPriority: {
         type: String,
-        required: true,
         enum: ['MUST', 'SHOULD', 'COULD', 'WON\'T']
     },
     projectId: {
