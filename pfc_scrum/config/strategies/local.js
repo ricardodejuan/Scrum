@@ -20,12 +20,12 @@ module.exports = function() {
                 }
                 if (!user) {
                     return callback(null, false, {
-                        message: 'Invalid user and password'
+                        message: 'Unknown user or invalid password'
                     });
                 }
                 if (!user.authenticate(password)) {
                     return callback(null, false, {
-                        message: 'Invalid user and password'
+                        message: 'Unknown user or invalid password'
                     });
                 }
 
