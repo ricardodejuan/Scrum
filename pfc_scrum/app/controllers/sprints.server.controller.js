@@ -149,7 +149,7 @@ exports.backlog = function (req, res) {
  */
 exports.hasAuthorization = function (req, res, next) {
     var user = req.user;
-    var query = { _id: req.params.projectId, "users.userId": user._id};
+    var query = { _id: req.params.projectId, 'users.userId': user._id };
 
     Project.findOne(query).count().exec(function(err, amount) {
         if (err) return next(err);

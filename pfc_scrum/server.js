@@ -1,3 +1,5 @@
+'use strict';
+
 var debug = require('debug')('pfc_scrum');
 var init = require('./config/init')();
 var config = require('./config/config');

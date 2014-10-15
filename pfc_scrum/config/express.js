@@ -1,6 +1,8 @@
 /**
  * Created by J. Ricardo de Juan Cajide on 8/25/14.
  */
+'use strict';
+
 var express = require('express');
 var path = require('path');
 var favicon = require('static-favicon');

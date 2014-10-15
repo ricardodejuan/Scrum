@@ -22,7 +22,7 @@ exports.create = function(req, res) {
     var user = req.user;
 
     project.users.push(
-        {userId: user._id, admin: true, role: "TEAM"}
+        { userId: user._id, admin: true, role: 'TEAM' }
     );
 
     project.save(function(err, doc) {
@@ -42,7 +42,7 @@ exports.create = function(req, res) {
                 } else {
                     res.status(201).jsonp(doc);
                 }
-            })
+            });
         }
     });
 };

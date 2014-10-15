@@ -1,6 +1,8 @@
 /**
  * Created by J. Ricardo de Juan Cajide on 8/19/14.
  */
+'use strict';
+
 var mongoose = require('mongoose');
 
 module.exports = function (config) {

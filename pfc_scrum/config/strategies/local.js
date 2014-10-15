@@ -1,6 +1,8 @@
 /**
  * Created by J. Ricardo de Juan Cajide on 9/9/14.
  */
+'use strict';
+
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('mongoose').model('User');
