@@ -53,6 +53,13 @@ angular.element(document).ready(function() {
 // Use Applicaion configuration module to register a new module
 ApplicationConfiguration.registerModule('core');
 /**
+ * Created by J. Ricardo de Juan Cajide on 10/16/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('projects');
+/**
  * Created by J. Ricardo de Juan Cajide on 9/14/14.
  */
 'use strict';
@@ -282,6 +289,186 @@ angular.module('core').service('Menus', [
     }
 ]);
 /**
+ * Created by J. Ricardo de Juan Cajide on 10/16/14.
+ */
+'use strict';
+
+// Configuring the Projects module
+angular.module('projects').run(['Menus',
+    function(Menus) {
+        // Set top bar menu items
+        Menus.addMenuItem('topbar', 'Projects', 'projects', 'dropdown', '/projects(/create)?');
+        Menus.addSubMenuItem('topbar', 'projects', 'List Projects', 'projects');
+        Menus.addSubMenuItem('topbar', 'projects', 'New Project', 'projects/create');
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 10/16/14.
+ */
+'use strict';
+
+// Setting up route
+angular.module('projects').config(['$stateProvider',
+    function($stateProvider) {
+        // Articles state routing
+        $stateProvider.
+            state('listProjects', {
+                url: '/projects',
+                templateUrl: 'modules/projects/views/list-projects.client.view.html'
+            }).
+            state('createProject', {
+                url: '/projects/create',
+                templateUrl: 'modules/projects/views/create-project.client.view.html'
+            }).
+            state('viewProject', {
+                url: '/project/:projectId',
+                templateUrl: 'modules/projects/views/view-project.client.view.html'
+            }).
+            state('editProject', {
+                url: '/project/:projectId/edit',
+                templateUrl: 'modules/projects/views/edit-project.client.view.html'
+            });
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 10/19/14.
+ */
+'use strict';
+
+var projectsApp = angular.module('projects');
+
+projectsApp.controller('ProjectsController', ['$scope', '$stateParams', 'Authentication', 'Projects',
+    function($scope, $stateParams, Authentication, Projects) {
+
+        this.authentication = Authentication;
+
+        // Find a list  of projects
+        this.projects = Projects.query();
+
+    }
+]);
+
+projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log',
+    function($scope, $stateParams, Authentication, Projects, $modal, $log) {
+
+        this.authentication = Authentication;
+
+        this.project =  Projects.get({
+                projectId: $stateParams.projectId
+            });
+
+        // Open a modal window
+        this.modal = function (size, selectedProject) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'modules/projects/views/edit-project.client.view.html',
+                controller: ["$scope", "$modalInstance", "project", function ($scope, $modalInstance, project) {
+                    $scope.project = project;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.project);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                }],
+                size: size,
+                resolve: {
+                    project: function () {
+                        return selectedProject;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            }, function () {
+                $log.info('Modal dismissed at: ' + new Date());
+            });
+        };
+    }
+]);
+
+
+projectsApp.controller('ProjectsUpdateController', ['$scope', 'Projects',
+    function($scope, Projects) {
+
+        this.update = function(updatedProject) {
+            var project = updatedProject;
+
+            project.$update(function() {
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+    }
+]);
+
+
+/*
+angular.module('projects').controller('ProjectsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Projects',
+    function($scope, $stateParams, $location, Authentication, Projects) {
+        $scope.authentication = Authentication;
+
+        $scope.create = function() {
+            var project = new Projects({
+                projectName: this.projectName,
+                descriptionName: this.descriptionName,
+                startTime: this.startTime,
+                endTime: this.endTime
+            });
+            project.$save(function(response) {
+                $location.path('projects/' + response._id);
+
+                $scope.projectName = '';
+                $scope.descriptionName = '';
+                $scope.startTime = '';
+                $scope.endTime = '';
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+
+        $scope.update = function() {
+            var project = $scope.project;
+
+            project.$update(function() {
+                $location.path('project/' + project._id);
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+
+        $scope.find = function() {
+            $scope.projects = Projects.query();
+        };
+
+        $scope.findOne = function() {
+            $scope.project = Projects.get({
+                projectId: $stateParams.projectId
+            });
+        };
+    }
+]);*/
+/**
+ * Created by J. Ricardo de Juan Cajide on 10/19/14.
+ */
+'use strict';
+
+//Projects service used for communicating with the projects REST endpoints
+angular.module('projects').factory('Projects', ['$resource',
+    function($resource) {
+        return $resource('projects/:projectId', {
+            projectId: '@_id'
+        }, {
+            update: {
+                method: 'PUT'
+            }
+        });
+    }
+]);
+/**
  * Created by J. Ricardo de Juan Cajide on 9/14/14.
  */
 'use strict';
@@ -331,10 +518,6 @@ angular.module('users').config(['$stateProvider',
             state('password', {
                 url: '/settings/password',
                 templateUrl: 'modules/users/views/settings/change-password.client.view.html'
-            }).
-            state('accounts', {
-                url: '/settings/accounts',
-                templateUrl: 'modules/users/views/settings/social-accounts.client.view.html'
             }).
             state('signup', {
                 url: '/signup',
@@ -457,37 +640,6 @@ angular.module('users').controller('SettingsController', ['$scope', '$http', '$l
 
         // If user is not signed in then redirect back home
         if (!$scope.user) $location.path('/');
-
-        // Check if there are additional accounts
-        $scope.hasConnectedAdditionalSocialAccounts = function(provider) {
-            for (var i in $scope.user.additionalProvidersData) {
-                return true;
-            }
-
-            return false;
-        };
-
-        // Check if provider is already in use with current user
-        $scope.isConnectedSocialAccount = function(provider) {
-            return $scope.user.provider === provider || ($scope.user.additionalProvidersData && $scope.user.additionalProvidersData[provider]);
-        };
-
-        // Remove a user social account
-        $scope.removeUserSocialAccount = function(provider) {
-            $scope.success = $scope.error = null;
-
-            $http.delete('/users/accounts', {
-                params: {
-                    provider: provider
-                }
-            }).success(function(response) {
-                // If successful show success message and clear form
-                $scope.success = true;
-                $scope.user = Authentication.user = response;
-            }).error(function(response) {
-                $scope.error = response.message;
-            });
-        };
 
         // Update a user profile
         $scope.updateUserProfile = function(isValid) {

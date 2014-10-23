@@ -15,14 +15,14 @@ var _ = require('lodash');
  * A Validation function for properties
  */
 var validateProperty = function(property) {
-    return (property.length);
+    return (property);
 };
 
 /**
  * A Validation function for password
  */
 var validatePassword = function(password) {
-    return (password && password.length > 8);
+    return (password && password.length > 7);
 };
 
 var UserSchema = new Schema({

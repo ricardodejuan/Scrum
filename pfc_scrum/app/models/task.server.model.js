@@ -13,7 +13,7 @@ var Schema = mongoose.Schema;
  * A Validation function for properties
  */
 var validateProperty = function(property) {
-    return (property.length);
+    return (property && property.length < 20);
 };
 
 var TaskSchema = new Schema({

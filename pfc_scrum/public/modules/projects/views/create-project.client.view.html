@@ -1,0 +1,50 @@
+<section data-ng-controller="ProjectsCreateController">
+    <div class="page-header">
+        <h1>Create Project</h1>
+    </div>
+    <div class="col-md-12">
+        <form name="projectCreateForm" class="form-horizontal" data-ng-submit="create()" novalidate>
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div data-ng-show="error" class="text-center text-danger">
+                                <div class="alert alert-danger" role="alert">
+                                    <strong data-ng-bind="error"></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="projectName">Title</label>
+                            <div class="controls">
+                                <input name="projectName" type="text" data-ng-model="projectName" id="projectName" class="form-control" placeholder="Title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="descriptionName">Description</label>
+                            <div class="controls">
+                                <textarea name="descriptionName" data-ng-model="descriptionName" id="descriptionName" class="form-control" cols="30" rows="10" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="startTime">Start Time</label>
+                            <div class='input-group date'>
+                                <input name="startTime" type="date" data-ng-model="startTime" id="startTime" class="form-control"  placeholder="Text input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="endTime">End Time</label>
+                            <div class='input-group date'>
+                                <input name="endTime" type="date" data-ng-model="endTime" id="endTime" class="form-control"  placeholder="Text input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-group btn-success">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</section>

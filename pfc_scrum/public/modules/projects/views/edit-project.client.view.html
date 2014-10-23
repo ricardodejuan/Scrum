@@ -1,0 +1,89 @@
+<section data-ng-controller="ProjectsUpdateController as projectUpCtrl">
+
+    <div class="modal-header">
+        <h3 class="modal-title">{{project.projectName}}</h3>
+    </div>
+    <div class="modal-body">
+        <form name="updateProjectForm">
+            <fieldset>
+                <div class="row">
+                    <div class="form-group">
+                        <div data-ng-show="error" class="text-center text-danger">
+                            <div class="alert alert-danger" role="alert">
+                                <strong data-ng-bind="error"></strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label" for="projectName">Title</label>
+                            <div class="controls">
+                                <input name="projectName" type="text" data-ng-model="project.projectName" id="projectName" class="form-control" placeholder="Title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="descriptionName">Description</label>
+                            <div class="controls">
+                                <textarea name="descriptionName" data-ng-model="project.descriptionName" id="descriptionName" class="form-control" cols="30" rows="10" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="startTime">Start Time</label>
+                            <div class='input-group date'>
+                                <input name="startTime" type="date" data-ng-model="project.startTime" id="startTime" class="form-control"  placeholder="Text input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="endTime">End Time</label>
+                            <div class='input-group date'>
+                                <input name="endTime" type="date" data-ng-model="project.endTime" id="endTime" class="form-control"  placeholder="Text input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="projectUpCtrl.update(project); ok()" ng-disabled="updateProjectForm.$invalid">Update</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+
+  <!--  <div class="page-header">
+        <h1>Edit Project</h1>
+    </div>
+    <div class="col-md-12">
+        <form name="projectForm" class="form-horizontal" data-ng-submit="update(projectForm.$valid)" novalidate>
+            <fieldset>
+                <div class="form-group" ng-class="{ 'has-error' : submitted && projectForm.projectName.$invalid}">
+                    <label class="control-label" for="projectName">Title</label>
+                    <div class="controls">
+                        <input name="projectName" type="text" data-ng-model="project.projectName" id="projectName" class="form-control" placeholder="Title" required>
+                    </div>
+                    <div ng-show="submitted && projectForm.projectName.$invalid" class="help-block">
+                        <p ng-show="projectForm.projectName.$error.required" class="text-danger">Project name is required</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : submitted && projectForm.descriptionName.$invalid}">
+                    <label class="control-label" for="descriptionName">Description</label>
+                    <div class="controls">
+                        <textarea name="descriptionName" data-ng-model="project.descriptionName" id="descriptionName" class="form-control" cols="30" rows="10" placeholder="Content" required></textarea>
+                    </div>
+                    <div ng-show="submitted && projectForm.descriptionName.$invalid" class="help-block">
+                        <p ng-show="projectForm.descriptionName.$error.required" class="text-danger">Description is required</p>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <input type="submit" value="Update" class="btn btn-default">
+                </div>
+                <div data-ng-show="error" class="text-danger">
+                    <strong data-ng-bind="error"></strong>
+                </div>
+
+            </fieldset>
+        </form>
+    </div> -->
+</section>

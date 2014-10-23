@@ -17,7 +17,7 @@ var ObjectId = mongoose.Types.ObjectId;
  * A Validation function for properties
  */
 var validateProperty = function(property) {
-    return (property.length < 17);
+    return (property && property.length < 17);
 };
 
 var ProjectSchema = new Schema({
