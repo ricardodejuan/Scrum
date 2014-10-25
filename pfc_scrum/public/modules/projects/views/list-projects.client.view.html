@@ -15,10 +15,10 @@
     </br>
     </br>
     <div class="list-group">
-        <div class="col-xs-6 col-sm-4 extra-space" data-ng-repeat="project in projectsCtrl.projects | filter:searchText">
-            <a class="list-group-item" data-ng-href="#!/project/{{project._id}}">
+        <div class="col-xs-6 col-sm-3 extra-space" data-ng-repeat="project in projectsCtrl.projects | filter:searchText">
+            <a class="list-group-item" data-ng-href="#!/projects/{{project._id}}">
                 <h4 class="proj-list text-center">
-                    <i class="glyphicon glyphicon-user "></i>
+                    <i class="glyphicon glyphicon-tasks"></i>
                 </h4>
                 <div class="row">
                     <div class="col-xs-10 col-xs-offset-1">
@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <div class="alert alert-warning text-center" data-ng-if="projects.$resolved && !projects.length">
+    <div class="alert alert-warning text-center" data-ng-if="projectsCtrl.projects.$resolved && !projectsCtrl.projects.length">
         No projects yet, why don't you <a href="/#!/projects/create">create one</a>?
     </div>
 </section>

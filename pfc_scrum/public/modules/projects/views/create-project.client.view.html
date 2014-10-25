@@ -26,18 +26,23 @@
                                 <textarea name="descriptionName" data-ng-model="descriptionName" id="descriptionName" class="form-control" cols="30" rows="10" placeholder="Description"></textarea>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label class="control-label" for="startTime">Start Time</label>
-                            <div class='input-group date'>
-                                <input name="startTime" type="date" data-ng-model="startTime" id="startTime" class="form-control"  placeholder="Text input">
-                            </div>
+                            <p class="input-group">
+                                <input name="startTime" type="text" id="startTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="startTime" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openStartDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </p>
                         </div>
-                        <div class="form-group">
+                       <div class="form-group">
                             <label class="control-label" for="endTime">End Time</label>
-                            <div class='input-group date'>
-                                <input name="endTime" type="date" data-ng-model="endTime" id="endTime" class="form-control"  placeholder="Text input">
-                            </div>
+                            <p class="input-group">
+                                <input name="endTime" type="text" id="endTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="endTime" is-open="openedEndDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openEndDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </p>
                         </div>
                         <div class="form-group">
                             <button type="submit" class="btn btn-group btn-success">Create</button>

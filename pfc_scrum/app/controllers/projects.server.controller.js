@@ -7,11 +7,10 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-    errorHandler = require('./errors'),
+    errorHandler = require('./errors.server.controller'),
     Project = mongoose.model('Project'),
     User = mongoose.model('User'),
-    _ = require('lodash'),
-    async = require('async');
+    _ = require('lodash');
 
 
 /**
@@ -20,7 +19,7 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
     var project = new Project(req.body);
     var user = req.user;
-    console.log(req.body);
+
     project.users.push(
         { userId: user._id, admin: true, role: 'TEAM' }
     );

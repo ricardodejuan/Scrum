@@ -6,12 +6,9 @@
 /**
  * Module dependencies.
  */
-
+var users = require('../../app/controllers/users.server.controller');
 
 module.exports = function(app) {
-
-    // User Routes
-    var users = require('../../app/controllers/users');
 
     // Show users
     app.route('/users').get(users.requiresLogin, users.list);

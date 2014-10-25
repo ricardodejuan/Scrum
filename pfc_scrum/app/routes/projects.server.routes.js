@@ -6,8 +6,8 @@
 /**
  * Module dependencies.
  */
-var users = require('../../app/controllers/users');
-var projects = require('../../app/controllers/projects');
+var users = require('../../app/controllers/users.server.controller');
+var projects = require('../../app/controllers/projects.server.controller');
 
 module.exports = function(app) {
 

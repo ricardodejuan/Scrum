@@ -34,7 +34,9 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                     $scope.project = project;
 
                     $scope.ok = function () {
-                        $modalInstance.close($scope.project);
+                        //if (updateProjectForm.$valid) {
+                            $modalInstance.close($scope.project);
+                        //}
                     };
 
                     $scope.cancel = function () {
@@ -58,8 +60,8 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
     }
 ]);
 
-projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authentication',
-    function($scope, Projects, Authentication) {
+projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authentication', '$location',
+    function($scope, Projects, Authentication, $location) {
         $scope.authentication = Authentication;
 
         $scope.create = function() {
@@ -81,6 +83,47 @@ projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authe
                 $scope.error = errorResponse.data.message;
             });
         };
+
+        $scope.today = function() {
+            $scope.startTime = new Date();
+        };
+        $scope.today();
+
+        $scope.clear = function () {
+            $scope.startTime = null;
+        };
+
+        $scope.openStartDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedStartDT = true;
+        };
+
+        $scope.today = function() {
+            $scope.endTime = new Date();
+        };
+        $scope.today();
+
+        $scope.clear = function () {
+            $scope.endTime = null;
+        };
+
+        $scope.openEndDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedEndDT = true;
+        };
+
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+
+        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+        $scope.format = $scope.formats[0];
+
     }
 ]);
 
@@ -89,59 +132,56 @@ projectsApp.controller('ProjectsUpdateController', ['$scope', 'Projects',
 
         this.update = function(updatedProject) {
             var project = updatedProject;
+            project.startTime = $scope.startTime;
+            project.endTime = $scope.endTime;
 
-            project.$update(function() {
+            project.$update(function(response) {
 
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.message;
             });
         };
+
+        $scope.today = function() {
+            $scope.startTime = new Date();
+        };
+        $scope.today();
+
+        $scope.clear = function () {
+            $scope.startTime = null;
+        };
+
+        $scope.openStartDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedStartDT = true;
+        };
+
+        $scope.today = function() {
+            $scope.endTime = new Date();
+        };
+        $scope.today();
+
+        $scope.clear = function () {
+            $scope.endTime = null;
+        };
+
+        $scope.openEndDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedEndDT = true;
+        };
+
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+
+        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+        $scope.format = $scope.formats[0];
+
+
     }
 ]);
-
-
-/*
-angular.module('projects').controller('ProjectsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Projects',
-    function($scope, $stateParams, $location, Authentication, Projects) {
-        $scope.authentication = Authentication;
-
-        $scope.create = function() {
-            var project = new Projects({
-                projectName: this.projectName,
-                descriptionName: this.descriptionName,
-                startTime: this.startTime,
-                endTime: this.endTime
-            });
-            project.$save(function(response) {
-                $location.path('projects/' + response._id);
-
-                $scope.projectName = '';
-                $scope.descriptionName = '';
-                $scope.startTime = '';
-                $scope.endTime = '';
-            }, function(errorResponse) {
-                $scope.error = errorResponse.data.message;
-            });
-        };
-
-        $scope.update = function() {
-            var project = $scope.project;
-
-            project.$update(function() {
-                $location.path('project/' + project._id);
-            }, function(errorResponse) {
-                $scope.error = errorResponse.data.message;
-            });
-        };
-
-        $scope.find = function() {
-            $scope.projects = Projects.query();
-        };
-
-        $scope.findOne = function() {
-            $scope.project = Projects.get({
-                projectId: $stateParams.projectId
-            });
-        };
-    }
-]);*/

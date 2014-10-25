@@ -28,13 +28,13 @@ var validatePassword = function(password) {
 var UserSchema = new Schema({
     firstName: {
         type: String,
-        required: true,
+        required: [true, 'First Name is required'],
         trim: true,
         validate: [validateProperty, 'Please fill in your first name']
     },
     lastName: {
         type: String,
-        required: true,
+        required: [true, 'Last Name is required'],
         trim: true,
         validate: [validateProperty, 'Please fill in your last name']
     },
@@ -44,13 +44,13 @@ var UserSchema = new Schema({
     },
     username: {
         type: String,
-        required: 'Please fill in a username',
+        required: [true, 'Username is required'],
         trim: true,
         index: { unique: true }
     },
     email: {
         type: String,
-        required: 'Please fill in an email',
+        required: [true, 'Email is required'],
         validate: [validateProperty, 'Please fill in your email'],
         match: [/.+\@.+\..+/, 'Please fill a valid email address'],
         trim: true,
@@ -58,7 +58,7 @@ var UserSchema = new Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: [true, 'Password is required'],
         trim: true,
         validate: [validatePassword, 'Password should be longer']
     },

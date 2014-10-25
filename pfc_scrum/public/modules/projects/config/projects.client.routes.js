@@ -17,12 +17,8 @@ angular.module('projects').config(['$stateProvider',
                 templateUrl: 'modules/projects/views/create-project.client.view.html'
             }).
             state('viewProject', {
-                url: '/project/:projectId',
+                url: '/projects/:projectId',
                 templateUrl: 'modules/projects/views/view-project.client.view.html'
-            }).
-            state('editProject', {
-                url: '/project/:projectId/edit',
-                templateUrl: 'modules/projects/views/edit-project.client.view.html'
             });
     }
 ]);

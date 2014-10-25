@@ -23,9 +23,9 @@ var validateProperty = function(property) {
 var ProjectSchema = new Schema({
     projectName: {
         type: String,
-        required: true,
+        required: [true, 'Title is required'],
         trim: true,
-        validate: [validateProperty, 'Project Name must be between 0 and 16 characters']
+        validate: [validateProperty, 'Project Name must be between 1 and 16 characters']
     },
     descriptionName: {
         type: String,
