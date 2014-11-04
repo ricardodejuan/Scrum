@@ -60,7 +60,7 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
     }
 ]);
 
-projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authentication', '$location',
+projectsApp.controller('ProjectsCrUpController', ['$scope', 'Projects', 'Authentication', '$location',
     function($scope, Projects, Authentication, $location) {
         $scope.authentication = Authentication;
 
@@ -87,7 +87,6 @@ projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authe
         $scope.today = function() {
             $scope.startTime = new Date();
         };
-        $scope.today();
 
         $scope.clear = function () {
             $scope.startTime = null;
@@ -103,7 +102,6 @@ projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authe
         $scope.today = function() {
             $scope.endTime = new Date();
         };
-        $scope.today();
 
         $scope.clear = function () {
             $scope.endTime = null;
@@ -124,16 +122,8 @@ projectsApp.controller('ProjectsCreateController', ['$scope', 'Projects', 'Authe
         $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
         $scope.format = $scope.formats[0];
 
-    }
-]);
-
-projectsApp.controller('ProjectsUpdateController', ['$scope', 'Projects',
-    function($scope, Projects) {
-
-        this.update = function(updatedProject) {
+        $scope.update = function(updatedProject) {
             var project = updatedProject;
-            project.startTime = $scope.startTime;
-            project.endTime = $scope.endTime;
 
             project.$update(function(response) {
 
@@ -141,47 +131,6 @@ projectsApp.controller('ProjectsUpdateController', ['$scope', 'Projects',
                 $scope.error = errorResponse.data.message;
             });
         };
-
-        $scope.today = function() {
-            $scope.startTime = new Date();
-        };
-        $scope.today();
-
-        $scope.clear = function () {
-            $scope.startTime = null;
-        };
-
-        $scope.openStartDT = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-
-            $scope.openedStartDT = true;
-        };
-
-        $scope.today = function() {
-            $scope.endTime = new Date();
-        };
-        $scope.today();
-
-        $scope.clear = function () {
-            $scope.endTime = null;
-        };
-
-        $scope.openEndDT = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-
-            $scope.openedEndDT = true;
-        };
-
-        $scope.dateOptions = {
-            formatYear: 'yy',
-            startingDay: 1
-        };
-
-        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-        $scope.format = $scope.formats[0];
-
 
     }
 ]);

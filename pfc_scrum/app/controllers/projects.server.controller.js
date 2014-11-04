@@ -17,7 +17,13 @@ var mongoose = require('mongoose'),
  * Create a project
  */
 exports.create = function(req, res) {
-    var project = new Project(req.body);
+    var data = { projectName: req.body.projectName,
+        descriptionName: req.body.descriptionName,
+        startTime: req.body.startTime,
+        endTime: req.body.endTime
+    };
+    console.log(data);
+    var project = new Project(data);
     var user = req.user;
 
     project.users.push(
@@ -76,9 +82,13 @@ exports.load = function(req, res) {
  */
 exports.update = function(req, res) {
     var project = req.project;
-    var body = { projectName: req.body.projectName, descriptionName: req.body.descriptionName };
+    var data = { projectName: req.body.projectName,
+                 descriptionName: req.body.descriptionName,
+                 startTime: req.body.startTime,
+                 endTime: req.body.endTime
+    };
 
-    project = _.extend(project, body);
+    project = _.extend(project, data);
 
     project.save(function(err) {
         if (err) {

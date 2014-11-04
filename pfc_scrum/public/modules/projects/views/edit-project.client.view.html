@@ -1,4 +1,4 @@
-<section data-ng-controller="ProjectsUpdateController as projectUpCtrl">
+<section data-ng-controller="ProjectsCrUpController">
 
     <div class="modal-header">
         <h3 class="modal-title">{{project.projectName}}</h3>
@@ -32,7 +32,7 @@
                         <div class="form-group">
                             <label class="control-label" for="startTime">Start Time</label>
                             <p class="input-group">
-                                <input name="startTime" type="text" id="startTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="startTime" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <input name="startTime" type="text" id="startTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="project.startTime" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="openStartDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                                 </span>
@@ -42,7 +42,7 @@
                         <div class="form-group">
                             <label class="control-label" for="endTime">End Time</label>
                             <p class="input-group">
-                                <input name="endTime" type="text" id="endTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="endTime" is-open="openedEndDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <input name="endTime" type="text" id="endTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="project.endTime" is-open="openedEndDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="openEndDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                                 </span>
@@ -54,10 +54,7 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-success" ng-click="projectUpCtrl.update(project); ok()" ng-disabled="updateProjectForm.$invalid">Update</button>
+        <button class="btn btn-success" ng-click="update(project); ok()" ng-disabled="updateProjectForm.$invalid">Update</button>
         <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
     </div>
 </section>
-
-
-        <!-- ng-class="{ 'has-error' : submitted && updateProjectForm.projectName.$invalid}" -->

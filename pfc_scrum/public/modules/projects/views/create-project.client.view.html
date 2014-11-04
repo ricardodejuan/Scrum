@@ -1,4 +1,4 @@
-<section data-ng-controller="ProjectsCreateController">
+<section data-ng-controller="ProjectsCrUpController">
     <div class="page-header">
         <h1>Create Project</h1>
     </div>
@@ -29,7 +29,7 @@
                         <div class="form-group">
                             <label class="control-label" for="startTime">Start Time</label>
                             <p class="input-group">
-                                <input name="startTime" type="text" id="startTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="startTime" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <input name="startTime" type="text" id="startTime" class="form-control" datepicker-popup="{{format}}" ng-model="startTime" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="openStartDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                                 </span>
@@ -38,7 +38,7 @@
                        <div class="form-group">
                             <label class="control-label" for="endTime">End Time</label>
                             <p class="input-group">
-                                <input name="endTime" type="text" id="endTime" class="form-control" datepicker-popup="{{format}}" data-ng-model="endTime" is-open="openedEndDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <input name="endTime" type="text" id="endTime" class="form-control" datepicker-popup="{{format}}" ng-model="endTime" is-open="openedEndDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="openEndDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                                 </span>
