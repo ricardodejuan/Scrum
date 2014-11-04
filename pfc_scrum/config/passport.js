@@ -3,11 +3,17 @@
  */
 'use strict';
 
+/**
+ * Module dependencies
+*/
 var passport = require('passport'),
     User = require('mongoose').model('User'),
     path = require('path'),
     config = require('./config');
 
+/**
+ * Module init function
+ */
 module.exports = function() {
     // Serialize sessions
     passport.serializeUser(function(user, done) {
