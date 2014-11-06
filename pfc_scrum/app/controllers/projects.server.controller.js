@@ -22,7 +22,6 @@ exports.create = function(req, res) {
         startTime: req.body.startTime,
         endTime: req.body.endTime
     };
-    console.log(data);
     var project = new Project(data);
     var user = req.user;
 

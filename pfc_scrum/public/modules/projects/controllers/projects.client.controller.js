@@ -5,28 +5,27 @@
 
 var projectsApp = angular.module('projects');
 
-projectsApp.controller('ProjectsController', ['$scope', '$stateParams', 'Authentication', 'Projects',
-    function($scope, $stateParams, Authentication, Projects) {
-
-        this.authentication = Authentication;
+projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Projects',
+    function($scope, Authentication, Projects) {
+        $scope.authentication = Authentication;
 
         // Find a list  of projects
-        this.projects = Projects.query();
+        $scope.projects = Projects.query();
 
     }
 ]);
 
-projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log',
-    function($scope, $stateParams, Authentication, Projects, $modal, $log) {
+projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
+        $scope.authentication = Authentication;
 
-        this.authentication = Authentication;
-
-        this.project =  Projects.get({
+        // Get a project
+        $scope.project =  Projects.get({
                 projectId: $stateParams.projectId
             });
 
         // Open a modal window
-        this.modal = function (size, selectedProject) {
+        $scope.modal = function (size, selectedProject) {
 
             var modalInstance = $modal.open({
                 templateUrl: 'modules/projects/views/edit-project.client.view.html',
@@ -55,6 +54,19 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 $scope.selected = selectedItem;
             }, function () {
                 $log.info('Modal dismissed at: ' + new Date());
+            });
+        };
+
+        // Leave project
+        $scope.leave = function() {
+            $http.put('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
+                // If successful we assign the response to the global user model
+                $scope.project = null;
+
+                // And redirect to the index page
+                $location.path('/');
+            }).error(function(response) {
+                $scope.error = response.message;
             });
         };
     }

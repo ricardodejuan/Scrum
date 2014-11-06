@@ -344,8 +344,8 @@ projectsApp.controller('ProjectsController', ['$scope', '$stateParams', 'Authent
     }
 ]);
 
-projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log',
-    function($scope, $stateParams, Authentication, Projects, $modal, $log) {
+projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
 
         this.authentication = Authentication;
 
@@ -385,6 +385,18 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 $log.info('Modal dismissed at: ' + new Date());
             });
         };
+
+        /*this.leave = function() {
+            $http.put('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
+                // If successful we assign the response to the global user model
+                $scope.authentication.user = response;
+
+                // And redirect to the index page
+                $location.path('/');
+            }).error(function(response) {
+                $scope.error = response.message;
+            });
+        };*/
     }
 ]);
 
@@ -470,9 +482,7 @@ projectsApp.controller('ProjectsCrUpController', ['$scope', 'Projects', 'Authent
 //Projects service used for communicating with the projects REST endpoints
 angular.module('projects').factory('Projects', ['$resource',
     function($resource) {
-        return $resource('projects/:projectId', {
-            projectId: '@_id'
-        }, {
+        return $resource('projects/:projectId', { projectId: '@_id' }, {
             update: {
                 method: 'PUT'
             }
