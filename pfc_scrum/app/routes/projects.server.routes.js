@@ -25,6 +25,9 @@ module.exports = function(app) {
     app.route('/projects/:projectId/leave')
         .put(users.requiresLogin, projects.hasAuthorization, projects.leave);
 
+    app.route('/projects/:projectId/members')
+        .get(users.requiresLogin, projects.hasAuthorization, projects.members);
+
     // Finish by binding the user middleware
     app.param('projectId', projects.projectByID);
 };

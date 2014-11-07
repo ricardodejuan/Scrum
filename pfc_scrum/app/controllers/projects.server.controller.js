@@ -56,7 +56,7 @@ exports.create = function(req, res) {
  */
 exports.list = function(req, res) {
     var query = { 'users.userId': req.user._id };
-    var projection = { projectName:1 };
+    var projection = { projectName: 1 };
 
     Project.find(query, projection).exec(function(err, projects) {
         if (err) {
@@ -150,6 +150,25 @@ exports.leave = function (req, res) {
         }
     });
 };
+
+/**
+ * Members of a project
+ */
+exports.members = function (req, res) {
+    var query = { 'projects': req.project._id };
+    var projection = { username: 1, displayName: 1 };
+
+    User.find(query, projection).exec(function(err, users) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp(users);
+        }
+    });
+};
+
 
 /**
  * Project middleware

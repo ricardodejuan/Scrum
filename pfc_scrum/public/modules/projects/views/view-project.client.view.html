@@ -12,13 +12,13 @@
                 <li role="presentation"><a href="">User Stories</a></li>
                 <li role="presentation"><a href="">Meetings</a></li>
                 <li role="presentation" class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
                         Settings <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a role="menuitem" tabindex="-1" href="">View members</a></li>
-                        <li><a role="menuitem" tabindex="-1" href="">Add members</a></li>
-                        <li><a role="menuitem" ng-click="leave()">Leave project</a></li>
+                        <li><a role="menuitem" tabindex="-1" href="" ng-click="modalViewMembers('', project)">View members</a></li>
+                        <li><a role="menuitem" tabindex="-1" href="" ng-click="">Add members</a></li>
+                        <li><a role="menuitem" tabindex="-1" href="" ng-click="leave(project)">Leave project</a></li>
 
                     </ul>
                 </li>

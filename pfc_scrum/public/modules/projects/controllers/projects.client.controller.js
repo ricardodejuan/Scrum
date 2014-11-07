@@ -5,9 +5,12 @@
 
 var projectsApp = angular.module('projects');
 
-projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Projects',
-    function($scope, Authentication, Projects) {
+projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Projects', '$location',
+    function($scope, Authentication, Projects, $location) {
         $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
 
         // Find a list  of projects
         $scope.projects = Projects.query();
@@ -18,6 +21,9 @@ projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Proje
 projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
     function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
         $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
 
         // Get a project
         $scope.project =  Projects.get({
@@ -58,9 +64,9 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         };
 
         // Leave project
-        $scope.leave = function() {
-            $http.put('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
-                // If successful we assign the response to the global user model
+        $scope.leave = function(selectedProject) {
+            $http.put('/projects/' + selectedProject._id + '/leave').success(function(response) {
+                // If successful project is removed of session
                 $scope.project = null;
 
                 // And redirect to the index page
@@ -69,12 +75,49 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 $scope.error = response.message;
             });
         };
+
+        // Open a modal window
+        $scope.modalViewMembers = function (size, selectedProject) {
+
+            var members = $http.get('/projects/' + selectedProject._id + '/members');
+
+            $modal.open({
+                templateUrl: 'modules/projects/views/members-project.client.view.html',
+                controller: function ($scope, $modalInstance, users) {
+
+                    $scope.users = users;
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    users: function () {
+                        return members.then(function (response) {
+                            return response.data;
+                        });
+                    }
+                }
+            });
+        };
+    }
+]);
+
+projectsApp.controller('ProjectsMembersController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
+        $scope.authentication = Authentication;
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
     }
 ]);
 
 projectsApp.controller('ProjectsCrUpController', ['$scope', 'Projects', 'Authentication', '$location',
     function($scope, Projects, Authentication, $location) {
         $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
 
         $scope.create = function() {
             var project = new Projects({
