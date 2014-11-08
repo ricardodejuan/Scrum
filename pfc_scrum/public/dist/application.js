@@ -392,8 +392,8 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         };
 
         // Leave project
-        $scope.leave = function() {
-            $http.put('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
+        $scope.leave = function(selectedProject) {
+            $http.put('/projects/' + selectedProject._id + '/leave').success(function(response) {
                 // If successful project is removed of session
                 $scope.project = null;
 
@@ -404,20 +404,16 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
             });
         };
 
-        // Open a modal window
+        // Open a modal window to view members
         $scope.modalViewMembers = function (size, selectedProject) {
 
-            var modalInstance = $modal.open({
-                templateUrl: 'modules/projects/views/members-project.client.view.html',
-                controller: ["$scope", "$modalInstance", "project", function ($scope, $modalInstance, project) {
+            var members = $http.get('/projects/' + selectedProject._id + '/members');
 
-                    $scope.usersa = function () {
-                        $http.get('/projects/' + project._id + '/members').success(function (response) {
-                            $scope.users = response;
-                        }).error(function(response) {
-                            $scope.error = response.message;
-                        });
-                    };
+            $modal.open({
+                templateUrl: 'modules/projects/views/members-project.client.view.html',
+                controller: ["$scope", "$modalInstance", "users", function ($scope, $modalInstance, users) {
+
+                    $scope.users = users;
 
                     $scope.cancel = function () {
                         $modalInstance.dismiss('cancel');
@@ -425,18 +421,60 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 }],
                 size: size,
                 resolve: {
-                    project: function () {
-                        return selectedProject;
+                    users: function () {
+                        return members.then(function (response) {
+                            return response.data;
+                        });
                     }
                 }
             });
+        };
 
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-            }, function () {
-                $log.info('Modal dismissed at: ' + new Date());
+        // Open a modal window to add members
+        $scope.modalAddMembers = function (size, selectedProject) {
+
+
+            $modal.open({
+                templateUrl: 'modules/projects/views/add-members-project.client.view.html',
+                controller: ["$scope", "$modalInstance", "users", function ($scope, $modalInstance, users) {
+
+                    $scope.users = users;
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                }],
+                size: size,
+                resolve: {
+                    users: function () {
+                        return null;
+                    }
+                }
             });
         };
+    }
+]);
+
+projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams', 'Authentication', 'ProjectsNonMembers', '$timeout', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, ProjectsNonMembers, $timeout, $log, $http, $location) {
+        $scope.authentication = Authentication;
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        var timeout;
+        $scope.$watch('username', function(newVal) {
+            if (newVal) {
+                if (timeout) $timeout.cancel(timeout);
+                timeout = $timeout(
+                    ProjectsNonMembers.nonMembers($stateParams.projectId, newVal)
+                        .success(function (data, status, headers) {
+                            // the success function wraps the response in data
+                            // so we need to call data.data to fetch the raw data
+                            $log.info(data);
+                            $scope.users = data.data;
+                        }), 350);
+            }
+        });
     }
 ]);
 
@@ -523,13 +561,25 @@ projectsApp.controller('ProjectsCrUpController', ['$scope', 'Projects', 'Authent
 'use strict';
 
 //Projects service used for communicating with the projects REST endpoints
-angular.module('projects').factory('Projects', ['$resource',
+angular.module('projects').factory('Projects', ['$resource', '$http',
     function($resource) {
         return $resource('projects/:projectId', { projectId: '@_id' }, {
             update: {
                 method: 'PUT'
             }
         });
+    }
+]);
+
+angular.module('projects').factory('ProjectsNonMembers', ['$http',
+    function($http) {
+        var nonMembersRequest = function (projectId, username) {
+            return $http.get('/projects/' + projectId + '/nonmembers/' + username);
+        };
+
+        return {
+            nonMembers: function (projectId, username) { return nonMembersRequest(projectId, username); }
+        };
     }
 ]);
 /**

@@ -113,7 +113,7 @@ exports.join = function (req, res) {
             return res.status(400).send({message: err.message});
         } else {
             _.forEach(users, function (user) {
-                var query = { _id: user.userId };
+                var query = { _id: user._id };
                 var doc = { $addToSet: {projects: project._id} };
 
                 User.update(query, doc, function (err) {
@@ -156,6 +156,25 @@ exports.leave = function (req, res) {
  */
 exports.members = function (req, res) {
     var query = { 'projects': req.project._id };
+    var projection = { username: 1, displayName: 1 };
+
+    User.find(query, projection).exec(function(err, users) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp(users);
+        }
+    });
+};
+
+
+/**
+ * Members of a project
+ */
+exports.nonmembers = function (req, res) {
+    var query = { 'projects': { $ne: req.project._id }, 'username': { $regex: req.params.username, $options: '$i' } };
     var projection = { username: 1, displayName: 1 };
 
     User.find(query, projection).exec(function(err, users) {

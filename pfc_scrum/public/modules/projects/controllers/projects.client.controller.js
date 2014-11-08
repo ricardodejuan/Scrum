@@ -76,7 +76,7 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
             });
         };
 
-        // Open a modal window
+        // Open a modal window to view members
         $scope.modalViewMembers = function (size, selectedProject) {
 
             var members = $http.get('/projects/' + selectedProject._id + '/members');
@@ -101,14 +101,60 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 }
             });
         };
+
+        // Open a modal window to add members
+        $scope.modalAddMembers = function (size, selectedProject) {
+
+
+            $modal.open({
+                templateUrl: 'modules/projects/views/add-members-project.client.view.html',
+                controller: function ($scope, $modalInstance, project) {
+                    $scope.project = project;
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    project: function () {
+                        return selectedProject;
+                    }
+                }
+
+            });
+        };
     }
 ]);
 
-projectsApp.controller('ProjectsMembersController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
-    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
+projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams', 'Authentication', 'ProjectsNonMembers', '$timeout', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, ProjectsNonMembers, $timeout, $log, $http, $location) {
         $scope.authentication = Authentication;
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
+
+        var timeout;
+        $scope.$watch('username', function(newVal) {
+            if (newVal) {
+                if (timeout) $timeout.cancel(timeout);
+                timeout = $timeout(
+                    ProjectsNonMembers.nonMembers($stateParams.projectId, newVal)
+                        .success(function (response) {
+                            // the success function wraps the response in data
+                            // so we need to call data.data to fetch the raw data
+                            $scope.users = response;
+                        }), 350);
+            }
+        });
+
+        // Add member to project
+        $scope.addMember = function(selectedProject, user) {
+            $http.put('/projects/' + selectedProject._id + '/join', {"users": [user]}).success(function(response) {
+                $scope.users = null;
+            }).error(function(response) {
+                $scope.error = response.message;
+            });
+        };
     }
 ]);
 

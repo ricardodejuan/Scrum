@@ -48,7 +48,8 @@ var ProjectSchema = new Schema({
             enum: ['SCRUM_MASTER', 'PRODUCT_OWNER', 'TEAM', 'STAKEHOLDER']
         }],
         admin: {
-            type: Boolean
+            type: Boolean,
+            default: false
         },
         _id: false
     }],

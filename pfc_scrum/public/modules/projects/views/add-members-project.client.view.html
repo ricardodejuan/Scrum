@@ -1,12 +1,17 @@
+<section data-ng-controller="ProjectsAddMembersController">
     <div class="modal-header">
-        <h3 class="modal-title">Members</h3>
+        <h3 class="modal-title">Add Members</h3>
     </div>
 
     <div class="modal-body">
         <ul class="nav nav-list">
-            <div data-ng-repeat="user in users">
+            <label for="username">Username: </label>
+            <input type="text" ng-model="username" placeholder="Enter an username" autofocus=""/>
+            </br>
+
+            <div ng-show="username" data-ng-repeat="user in users">
                 <li>
-                    <a href="">
+                    <a href="" ng-click="addMember(project, user)">
                         <h4 class="text-left">
                             <i class="glyphicon glyphicon-user"></i>
                             {{user.displayName}} - ( {{user.username}} )
@@ -19,3 +24,4 @@
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="cancel()">Close</button>
     </div>
+</section>

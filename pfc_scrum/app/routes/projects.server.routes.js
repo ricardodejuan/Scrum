@@ -28,6 +28,9 @@ module.exports = function(app) {
     app.route('/projects/:projectId/members')
         .get(users.requiresLogin, projects.hasAuthorization, projects.members);
 
+    app.route('/projects/:projectId/nonmembers/:username')
+        .get(users.requiresLogin, projects.hasAuthorization, projects.nonmembers);
+
     // Finish by binding the user middleware
     app.param('projectId', projects.projectByID);
 };
