@@ -1,0 +1,25 @@
+
+.sticky-note {
+    position: absolute;
+    padding: 2px 2px 2px 2px;
+}
+
+.sticky-note .title {
+    background: transparent;
+    border: none;
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.sticky-note .body {
+    background: transparent;
+    border: none;
+    display: block;
+}
+
+.containment-wrapper {
+    width: auto;
+    height: 700px;
+    background: url(../images/bg_corkboard.jpg) top left repeat fixed;
+}

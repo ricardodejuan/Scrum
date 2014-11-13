@@ -13,21 +13,20 @@ var app = require('./config/express')(db);
 // Bootstrap passport config
 require('./config/passport')();
 
+// Socket.io settings
+require('./config/socketio')(app);
+
 // Start the app by listening on <port>
-var server = app.listen(config.port, function() {
-    debug('Scrum server listening on port ' + config.port);
-});
-
-var io = require('socket.io').listen(server);
+app.get('server').listen(config.port);
 
 
-io.sockets.on('connection', function(socket) {
+/*io.sockets.on('connection', function(socket) {
     socket.emit('news', {
         hello: 'world'
     });
     socket.on('my other event', function(data) {
         console.log(data);
     });
-});
+});*/
 
 module.exports = app;

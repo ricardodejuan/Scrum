@@ -26,13 +26,13 @@ exports.create = function(req, res) {
                };
     var story = new Story(data);
 
-    story.save(function(err, doc) {
+    story.save(function(err, story) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
-            res.status(201).jsonp(doc);
+            res.status(201).jsonp(story);
         }
     });
 };
@@ -43,7 +43,6 @@ exports.create = function(req, res) {
  */
 exports.list = function(req, res) {
     var query = { 'projectId': req.params.projectId };
-    console.log(req.session);
 
     Story.find(query).exec(function(err, stories) {
         if (err) {

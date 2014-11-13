@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -59,6 +59,13 @@ ApplicationConfiguration.registerModule('core');
 
 // Use Application configuration module to register a new module
 ApplicationConfiguration.registerModule('projects');
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/8/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('stories');
 /**
  * Created by J. Ricardo de Juan Cajide on 9/14/14.
  */
@@ -289,6 +296,22 @@ angular.module('core').service('Menus', [
     }
 ]);
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/10/14.
+ */
+'use strict';
+
+/*global io:false */
+
+//socket factory that provides the socket service
+angular.module('core').factory('Socket', ['socketFactory', '$location',
+    function(socketFactory, $location) {
+        return socketFactory({
+            prefix: '',
+            ioSocket: io.connect( $location.protocol() +'://' + $location.host() + ':' + $location.port() )
+        });
+    }
+]);
+/**
  * Created by J. Ricardo de Juan Cajide on 10/16/14.
  */
 'use strict';
@@ -323,6 +346,10 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject', {
                 url: '/projects/:projectId',
                 templateUrl: 'modules/projects/views/view-project.client.view.html'
+            }).
+            state('viewProject.listStories', {
+                url: '/stories',
+                templateUrl: 'modules/stories/views/list-stories.client.view.html'
             });
     }
 ]);
@@ -433,12 +460,10 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         // Open a modal window to add members
         $scope.modalAddMembers = function (size, selectedProject) {
 
-
             $modal.open({
                 templateUrl: 'modules/projects/views/add-members-project.client.view.html',
-                controller: ["$scope", "$modalInstance", "users", function ($scope, $modalInstance, users) {
-
-                    $scope.users = users;
+                controller: ["$scope", "$modalInstance", "project", function ($scope, $modalInstance, project) {
+                    $scope.project = project;
 
                     $scope.cancel = function () {
                         $modalInstance.dismiss('cancel');
@@ -446,10 +471,11 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 }],
                 size: size,
                 resolve: {
-                    users: function () {
-                        return null;
+                    project: function () {
+                        return selectedProject;
                     }
                 }
+
             });
         };
     }
@@ -467,14 +493,22 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
                 if (timeout) $timeout.cancel(timeout);
                 timeout = $timeout(
                     ProjectsNonMembers.nonMembers($stateParams.projectId, newVal)
-                        .success(function (data, status, headers) {
+                        .success(function (response) {
                             // the success function wraps the response in data
                             // so we need to call data.data to fetch the raw data
-                            $log.info(data);
-                            $scope.users = data.data;
+                            $scope.users = response;
                         }), 350);
             }
         });
+
+        // Add member to project
+        $scope.addMember = function(selectedProject, user) {
+            $http.put('/projects/' + selectedProject._id + '/join', {'users': [user]}).success(function(response) {
+                $scope.users = null;
+            }).error(function(response) {
+                $scope.error = response.message;
+            });
+        };
     }
 ]);
 
@@ -580,6 +614,145 @@ angular.module('projects').factory('ProjectsNonMembers', ['$http',
         return {
             nonMembers: function (projectId, username) { return nonMembersRequest(projectId, username); }
         };
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/8/14.
+ */
+
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/9/14.
+ */
+'use strict';
+
+var storiesApp = angular.module('stories');
+
+storiesApp.controller('StoriesController', ['$scope', 'Authentication', 'Stories', '$location', 'Socket', '$log', '$stateParams',
+    function($scope, Authentication, Stories, $location, Socket, $log, $stateParams) {
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        // Find stories list
+        $scope.notes = Stories.query({ projectId: $stateParams.projectId });
+
+        // Incoming
+        Socket.on('on.story.created', function(story) {
+            $scope.notes.push(story);
+        });
+
+        Socket.on('on.story.deleted', function(story) {
+            $scope.handleDeletedNoted(story);
+        });
+
+        // Outgoing
+        $scope.createNote = function() {
+            var note = new Stories({
+                //id: new Date().getTime(),
+                storyTitle: 'New Story',
+                storyDescription: 'Description',
+                storyValue: 1,
+                storyPoint: 1
+            });
+            
+            note.$save({ projectId: $stateParams.projectId }, function (story) {
+                $scope.notes.push(story);
+                Socket.emit('story.created', story);
+            }, function (errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+
+        $scope.deleteNote = function(story) {
+            story.$remove({ projectId: $stateParams.projectId, storyId: story._id }, function (response) {
+                $scope.handleDeletedNoted(story);
+                Socket.emit('story.deleted', story);
+            }, function (errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+
+        $scope.handleDeletedNoted = function(data) {
+            var index = $scope.notes.indexOf(data);
+            $scope.notes.splice(index, 1);
+        };
+
+    }
+])
+    .directive('stickyNote', ["Socket", function(Socket) {
+        var linker = function(scope, element, attrs) {
+            element.draggable({ containment: '.containment-wrapper',
+                stop: function(event, ui) {
+                    Socket.emit('moveNote', {
+                        id: scope.note.id,
+                        x: ui.position.left,
+                        y: ui.position.top
+                    });
+                }
+            });
+
+            Socket.on('onNoteMoved', function(data) {
+                // Update if the same note
+                if(data.id === scope.note.id) {
+                    element.animate({
+                        left: data.x,
+                        top: data.y
+                    });
+                }
+            });
+
+            // Some DOM initiation to make it nice
+            element.css('left', '70px');
+            element.css('top', '120px');
+            element.hide().fadeIn();
+        };
+
+        var controller = ["$scope", function($scope) {
+            // Incoming
+            Socket.on('onNoteUpdated', function(data) {
+                // Update if the same note
+                if(data.id === $scope.note.id) {
+                    $scope.note.title = data.title;
+                    $scope.note.body = data.body;
+                }
+            });
+
+            // Outgoing
+            $scope.updateNote = function(note) {
+                Socket.emit('updateNote', note);
+            };
+
+            $scope.deleteNote = function(id) {
+                $scope.ondelete({
+                    story: id
+                });
+            };
+        }];
+
+        return {
+            restrict: 'A',
+            link: linker,
+            controller: controller,
+            scope: {
+                note: '=',
+                ondelete: '&'
+            }
+        };
+    }]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/8/14.
+ */
+'use strict';
+
+//Stories service used for communicating with the stories REST endpoints
+angular.module('stories').factory('Stories', ['$resource', '$http',
+    function($resource) {
+        return $resource('projects/:projectId/stories/:storyId', { projectId: '@projectId', storyId: '@storyId' }, {
+            update: {
+                method: 'PUT'
+            }
+        });
     }
 ]);
 /**

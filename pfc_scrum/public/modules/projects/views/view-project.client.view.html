@@ -1,35 +1,35 @@
 <section data-ng-controller="ProjectsViewController">
-    <div class="row">
 
+    <div class="header-space">
         <div class="col-md-6">
-            <h3 data-ng-bind="project.projectName"></h3>
+            <h3>{{project.projectName}}</h3>
         </div>
 
         <div class="col-md-6">
             <h4>
-            <ul class="nav nav-pills" role="tablist">
-                <li role="presentation"><a href="">Sprints</a></li>
-                <li role="presentation"><a href="">User Stories</a></li>
-                <li role="presentation"><a href="">Meetings</a></li>
-                <li role="presentation" class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">
-                        Settings <span class="caret"></span>
-                    </a>
+            <ul class="nav nav-pills navbar-right" role="tablist">
+                <li><a href="">Sprints</a></li>
+                <li><a href="" ui-sref=".listStories">User Stories</a></li>
+                <li><a href="">Meetings</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings<span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a role="menuitem" tabindex="-1" href="" ng-click="modalViewMembers('', project)">View members</a></li>
-                        <li><a role="menuitem" tabindex="-1" href="" ng-click="modalAddMembers('', project)">Add members</a></li>
-                        <li><a role="menuitem" tabindex="-1" href="" ng-click="leave(project)">Leave project</a></li>
+                        <li><a href="" ng-click="modalViewMembers('', project)">View members</a></li>
+                        <li><a href="" ng-click="modalAddMembers('', project)">Add members</a></li>
+                        <li><a href="" ng-click="leave(project)">Leave project</a></li>
 
                     </ul>
                 </li>
-                <li role="presentation">
-                    <a class="btn btn-lg" ng-click="modal('', project)">
-                        <i popover="{{project.descriptionName}}" popover-placement="bottom" popover-title="Description" popover-trigger="mouseenter" class="glyphicon glyphicon-info-sign"></i>
+                <li>
+                    <a href="#" ng-click="modal('', project)">
+                        <i popover="{{project.descriptionName}}" popover-placement="left" popover-title="Description" popover-trigger="mouseenter" class="glyphicon glyphicon-info-sign"></i>
                     </a>
                 </li>
 
             </ul>
-                </h4>
+            </h4>
         </div>
     </div>
+    <div ui-view></div>
+
 </section>

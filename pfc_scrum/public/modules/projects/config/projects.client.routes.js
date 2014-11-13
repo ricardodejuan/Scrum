@@ -19,6 +19,10 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject', {
                 url: '/projects/:projectId',
                 templateUrl: 'modules/projects/views/view-project.client.view.html'
+            }).
+            state('viewProject.listStories', {
+                url: '/stories',
+                templateUrl: 'modules/stories/views/list-stories.client.view.html'
             });
     }
 ]);

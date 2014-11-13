@@ -19,6 +19,7 @@ module.exports = {
             ],
             js: [
                 'public/lib/jquery/dist/jquery.min.js',
+                'public/lib/jquery-ui/jquery-ui.js',
                 'public/lib/angular/angular.js',
                 'public/lib/angular-resource/angular-resource.js',
                 'public/lib/angular-cookies/angular-cookies.js',
@@ -28,7 +29,9 @@ module.exports = {
                 'public/lib/angular-ui-router/release/angular-ui-router.js',
                 'public/lib/angular-ui-utils/ui-utils.js',
                 'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
-                'public/lib/bootstrap/dist/js/bootstrap.min.js'
+                'public/lib/bootstrap/dist/js/bootstrap.min.js',
+                'public/lib/angular-socket-io/socket.min.js',
+                'public/lib/socket.io-client/socket.io.js'
             ]
         },
         css: [

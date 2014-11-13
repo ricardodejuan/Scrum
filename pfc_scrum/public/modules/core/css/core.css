@@ -1,6 +1,9 @@
 .content {
     margin-top: 50px;
 }
+.header-right {
+    margin-right: 1px;
+}
 .undecorated-link:hover {
     text-decoration: none;
 }

@@ -13,7 +13,7 @@ var Schema = mongoose.Schema;
  * A Validation function for properties
  */
 var validateProperty = function(property) {
-    return (property && property.length < 17);
+    return (property && property.length < 21);
 };
 
 var StorySchema = new Schema({
@@ -21,7 +21,7 @@ var StorySchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        validate: [validateProperty, 'Story Title must be between 0 and 16 characters']
+        validate: [validateProperty, 'Story Title must be between 1 and 20 characters']
     },
     storyDescription: {
         type: String,

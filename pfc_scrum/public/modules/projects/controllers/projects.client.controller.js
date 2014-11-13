@@ -105,7 +105,6 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         // Open a modal window to add members
         $scope.modalAddMembers = function (size, selectedProject) {
 
-
             $modal.open({
                 templateUrl: 'modules/projects/views/add-members-project.client.view.html',
                 controller: function ($scope, $modalInstance, project) {
@@ -149,7 +148,7 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
 
         // Add member to project
         $scope.addMember = function(selectedProject, user) {
-            $http.put('/projects/' + selectedProject._id + '/join', {"users": [user]}).success(function(response) {
+            $http.put('/projects/' + selectedProject._id + '/join', {'users': [user]}).success(function(response) {
                 $scope.users = null;
             }).error(function(response) {
                 $scope.error = response.message;
