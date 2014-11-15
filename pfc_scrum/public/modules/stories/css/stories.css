@@ -2,6 +2,7 @@
 .sticky-note {
     position: absolute;
     padding: 2px 2px 2px 2px;
+    background-color: #ffffff;
 }
 
 .sticky-note .title {
