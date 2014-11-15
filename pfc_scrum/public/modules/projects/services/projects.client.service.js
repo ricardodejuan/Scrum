@@ -12,9 +12,8 @@ angular.module('projects').factory('Projects', ['$resource', '$http',
             }
         });
     }
-]);
-
-angular.module('projects').factory('ProjectsNonMembers', ['$http',
+])
+    .factory('ProjectsNonMembers', ['$http',
     function($http) {
         var nonMembersRequest = function (projectId, username) {
             return $http.get('/projects/' + projectId + '/nonmembers/' + username);

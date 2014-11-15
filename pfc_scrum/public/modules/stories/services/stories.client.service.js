@@ -4,7 +4,7 @@
 'use strict';
 
 //Stories service used for communicating with the stories REST endpoints
-angular.module('stories').factory('Stories', ['$resource', '$http',
+angular.module('stories').factory('Stories', ['$resource',
     function($resource) {
         return $resource('projects/:projectId/stories/:storyId', { projectId: '@projectId', storyId: '@storyId' }, {
             update: {

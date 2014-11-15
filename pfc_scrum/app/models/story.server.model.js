@@ -40,6 +40,14 @@ var StorySchema = new Schema({
         type: String,
         enum: ['MUST', 'SHOULD', 'COULD', 'WON\'T']
     },
+    storyPosX: {
+        type: Number,
+        required: true
+    },
+    storyPosY: {
+        type: Number,
+        required: true
+    },
     projectId: {
         type: Schema.Types.ObjectId,
         ref: 'Project',

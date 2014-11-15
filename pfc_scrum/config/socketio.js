@@ -28,6 +28,10 @@ module.exports = function (app) {
         socket.on('story.updated', function (data) {
             socket.broadcast.emit('on.story.updated', data);
         });
+
+        socket.on('story.moved', function (data) {
+            socket.broadcast.emit('on.story.moved', data);
+        });
     });
 
 };

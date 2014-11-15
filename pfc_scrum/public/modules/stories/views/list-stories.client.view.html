@@ -1,14 +1,14 @@
 <section data-ng-controller="StoriesController">
 
     <div class="containment-wrapper">
-        <button ng-click="createNote()" class="btn btn-success pull-right"><span class="glyphicon glyphicon-plus"></span></button>
+        <button ng-click="createStory()" class="btn btn-success pull-right"><span class="glyphicon glyphicon-plus"></span></button>
 
-        <div sticky-note ng-repeat="note in notes" note="note" class="alert alert-warning sticky-note" ondelete="deleteNote(id)">
-            <button type="button" class="close" ng-click="deleteNote(note)"><span class="btn-xs glyphicon glyphicon-trash"></span></button>
-            <input ng-model="note.storyTitle" ng-change="updateNote(note)" type="text" class="title" >
-            <button type="button" class="close" ng-click="deleteNote(note.id)"><span class="btn-xs glyphicon glyphicon-cog"></span></button>
-            <textarea ng-model="note.storyDescription" ng-change="updateNote(note)" class="body">{{note.storyDescription}}</textarea>
+        <div sticky-note ng-repeat="story in stories" story="story" class="alert alert-warning sticky-note">
+            <button type="button" class="close" ng-click="deleteStory(story)"><span class="btn-xs glyphicon glyphicon-trash"></span></button>
+            <input ng-model="story.storyTitle" ng-change="updateStory(story)" type="text" class="title" >
+            <button type="button" class="close" ng-click="editStory('', story)"><span class="btn-xs glyphicon glyphicon-cog"></span></button>
+            <textarea ng-model="story.storyDescription" ng-change="updateStory(story)" class="body"></textarea>
         </div>
-    </div>
 
+    </div>
 </section>
