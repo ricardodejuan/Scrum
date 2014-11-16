@@ -6,7 +6,7 @@
 
 var storiesApp = angular.module('stories');
 
-storiesApp.directive('stickyNote', ['Socket', function(Socket) {
+storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $stateParams) {
     var linker = function(scope, element, attrs) {
         element.draggable({
             containment: '.containment-wrapper',
@@ -14,7 +14,8 @@ storiesApp.directive('stickyNote', ['Socket', function(Socket) {
                 Socket.emit('story.moved', {
                     id: scope.story._id,
                     x: ui.position.left,
-                    y: ui.position.top
+                    y: ui.position.top,
+                    room: $stateParams.projectId
                 });
                 scope.story.storyPosX = ui.position.left;
                 scope.story.storyPosY = ui.position.top;
@@ -75,6 +76,9 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
         $scope.stories = Stories.query({ projectId: $stateParams.projectId });
 
+        // Enter in a room
+        Socket.emit('story.room', $stateParams.projectId);
+
         // Incoming
         Socket.on('on.story.created', function(story) {
             $scope.stories.push( new Stories(story) );
@@ -97,13 +101,13 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
             s.$save({ projectId: $stateParams.projectId }, function (story) {
                 $scope.stories.push(story);
-                Socket.emit('story.created', story);
+                Socket.emit('story.created', {story: story, room: $stateParams.projectId});
             });
         };
 
         $scope.deleteStory = function(story) {
             $scope.handleDeletedStory(story._id);
-            Socket.emit('story.deleted', {id: story._id});
+            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
             story.$remove({ projectId: $stateParams.projectId, storyId: story._id });
         };
 
@@ -121,11 +125,11 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
         // Outgoing
         $scope.updateStory = function(story) {
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', story);
+            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
 
         $scope.editStory = function (size, selectedStory) {
-            
+
             var modalInstance = $modal.open({
                 templateUrl: 'modules/stories/views/edit-story.client.view.html',
                 controller: function ($scope, $modalInstance, story) {
@@ -171,7 +175,7 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
         $scope.update = function (updatedStory) {
             var story = updatedStory;
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', story);
+            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
     }
 ]);

@@ -296,46 +296,6 @@ angular.module('core').service('Menus', [
     }
 ]);
 /**
- * Created by J. Ricardo de Juan Cajide on 11/10/14.
- */
-'use strict';
-
-/*global io:false */
-
-//socket factory that provides the socket service
-/*angular.module('core').factory('Socket', ['socketFactory', '$location',
-    function(socketFactory, $location) {
-        return socketFactory({
-            prefix: '',
-            ioSocket: io.connect( $location.protocol() +'://' + $location.host() + ':' + $location.port() )
-        });
-    }
-]);*/
-
-angular.module('core').factory('Socket', ["$rootScope", function($rootScope) {
-    var socket = io.connect();
-    return {
-        on: function(eventName, callback) {
-            socket.on(eventName, function() {
-                var args = arguments;
-                $rootScope.$apply(function() {
-                    callback.apply(socket, args);
-                });
-            });
-        },
-        emit: function(eventName, data, callback) {
-            socket.emit(eventName, data, function() {
-                var args = arguments;
-                $rootScope.$apply(function() {
-                    if(callback) {
-                        callback.apply(socket, args);
-                    }
-                });
-            });
-        }
-    };
-}]);
-/**
  * Created by J. Ricardo de Juan Cajide on 10/16/14.
  */
 'use strict';
@@ -374,6 +334,10 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject.listStories', {
                 url: '/stories',
                 templateUrl: 'modules/stories/views/list-stories.client.view.html'
+            }).
+            state('viewProjects.createSprint', {
+                url: '/sprints',
+                templateUrl: 'modules/sprints/views/create-sprint.client.view.html'
             });
     }
 ]);
@@ -647,7 +611,7 @@ angular.module('projects').factory('Projects', ['$resource', '$http',
 
 var storiesApp = angular.module('stories');
 
-storiesApp.directive('stickyNote', ['Socket', function(Socket) {
+storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $stateParams) {
     var linker = function(scope, element, attrs) {
         element.draggable({
             containment: '.containment-wrapper',
@@ -655,7 +619,8 @@ storiesApp.directive('stickyNote', ['Socket', function(Socket) {
                 Socket.emit('story.moved', {
                     id: scope.story._id,
                     x: ui.position.left,
-                    y: ui.position.top
+                    y: ui.position.top,
+                    room: $stateParams.projectId
                 });
                 scope.story.storyPosX = ui.position.left;
                 scope.story.storyPosY = ui.position.top;
@@ -676,7 +641,13 @@ storiesApp.directive('stickyNote', ['Socket', function(Socket) {
         // Some DOM initiation to make it nice
         element.css('left', scope.story.storyPosX + 'px');
         element.css('top', scope.story.storyPosY + 'px');
-        element.hide().fadeIn();
+        switch(scope.story.storyPriority) {
+            case 'MUST': element.addClass('alert-danger'); break;
+            case 'SHOULD': element.addClass('alert-warning'); break;
+            case 'COULD': element.addClass('alert-info'); break;
+            case 'WON\'T': element.addClass('alert-success'); break;
+        }
+        element.fadeIn();
     };
 
     var controller = ["$scope", function($scope) {
@@ -686,6 +657,7 @@ storiesApp.directive('stickyNote', ['Socket', function(Socket) {
             if(story._id === $scope.story._id) {
                 $scope.story.storyTitle = story.storyTitle;
                 $scope.story.storyDescription = story.storyDescription;
+
             }
         });
     }];
@@ -709,6 +681,9 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
         $scope.stories = Stories.query({ projectId: $stateParams.projectId });
 
+        // Enter in a room
+        Socket.emit('story.room', $stateParams.projectId);
+
         // Incoming
         Socket.on('on.story.created', function(story) {
             $scope.stories.push( new Stories(story) );
@@ -731,13 +706,13 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
             s.$save({ projectId: $stateParams.projectId }, function (story) {
                 $scope.stories.push(story);
-                Socket.emit('story.created', story);
+                Socket.emit('story.created', {story: story, room: $stateParams.projectId});
             });
         };
 
         $scope.deleteStory = function(story) {
             $scope.handleDeletedStory(story._id);
-            Socket.emit('story.deleted', {id: story._id});
+            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
             story.$remove({ projectId: $stateParams.projectId, storyId: story._id });
         };
 
@@ -755,7 +730,7 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
         // Outgoing
         $scope.updateStory = function(story) {
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', story);
+            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
 
         $scope.editStory = function (size, selectedStory) {
@@ -805,11 +780,51 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
         $scope.update = function (updatedStory) {
             var story = updatedStory;
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', story);
+            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
     }
 ]);
 
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/10/14.
+ */
+'use strict';
+
+/*global io:false */
+
+//socket factory that provides the socket service
+/*angular.module('core').factory('Socket', ['socketFactory', '$location',
+    function(socketFactory, $location) {
+        return socketFactory({
+            prefix: '',
+            ioSocket: io.connect( $location.protocol() +'://' + $location.host() + ':' + $location.port() )
+        });
+    }
+]);*/
+
+angular.module('stories').factory('Socket', ["$rootScope", function($rootScope) {
+    var socket = io('/stories').connect();
+    return {
+        on: function(eventName, callback) {
+            socket.on(eventName, function() {
+                var args = arguments;
+                $rootScope.$apply(function() {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+        emit: function(eventName, data, callback) {
+            socket.emit(eventName, data, function() {
+                var args = arguments;
+                $rootScope.$apply(function() {
+                    if(callback) {
+                        callback.apply(socket, args);
+                    }
+                });
+            });
+        }
+    };
+}]);
 /**
  * Created by J. Ricardo de Juan Cajide on 11/8/14.
  */

@@ -33,10 +33,12 @@ var ProjectSchema = new Schema({
         trim: true
     },
     startTime: {
-        type: Date
+        type: Date,
+        required: true
     },
     endTime: {
-        type: Date
+        type: Date,
+        required: true
     },
     users: [{
         userId: {

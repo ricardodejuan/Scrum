@@ -15,8 +15,8 @@
     }
 ]);*/
 
-angular.module('core').factory('Socket', function($rootScope) {
-    var socket = io.connect();
+angular.module('stories').factory('Socket', function($rootScope) {
+    var socket = io('/stories').connect();
     return {
         on: function(eventName, callback) {
             socket.on(eventName, function() {

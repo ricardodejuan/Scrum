@@ -23,6 +23,10 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject.listStories', {
                 url: '/stories',
                 templateUrl: 'modules/stories/views/list-stories.client.view.html'
+            }).
+            state('viewProjects.createSprint', {
+                url: '/sprints',
+                templateUrl: 'modules/sprints/views/create-sprint.client.view.html'
             });
     }
 ]);
