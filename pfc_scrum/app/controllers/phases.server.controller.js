@@ -18,9 +18,8 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res) {
     var data = { phaseName: req.body.phaseName,
-                 sprint: { sprintId: req.params.sprintId,
-                           order: req.body.order
-                         }
+                 position: req.body.position,
+                 sprintId: req.params.sprintId
                };
     var phase = new Phase(data);
 
@@ -40,7 +39,7 @@ exports.create = function(req, res) {
  * List of phases
  */
 exports.list = function(req, res) {
-    var query = { 'sprint.sprintId': req.params.sprintId };
+    var query = { 'sprintId': req.params.sprintId };
 
     Phase.find(query).exec(function(err, phases) {
         if (err) {
@@ -76,7 +75,7 @@ exports.load = function (req, res) {
 exports.update = function (req, res) {
     var query = { _id: req.params.phaseId };
     var data = { phaseName: req.body.phaseName,
-                 sprint: { sprintId: req.params.sprintId, order: req.body.order }
+                 position: req.body.position
                };
 
     Phase.findOne(query).exec(function (err, phase) {

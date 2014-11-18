@@ -1,0 +1,11 @@
+.phase {
+    display: inline-block;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.page-content-wrapper {
+    white-space: nowrap;
+    width: 100%;
+    overflow-x: auto;
+}

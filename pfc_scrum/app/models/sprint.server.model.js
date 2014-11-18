@@ -28,18 +28,19 @@ var SprintSchema = new Schema({
         trim: true
     },
     sprintStartTime: {
-        type: Date
+        type: Date,
+        required: true
     },
     sprintEstimateTime: {
         type: Date
     },
     sprintEndTime: {
-        type: Date
+        type: Date,
+        required: true
     },
-    sprintState: {
-        type: String,
-        required: true,
-        enum: ['PAST', 'PRESENT', 'FUTURE']
+    sprintFinished: {
+        type: Boolean,
+        default: false
     },
     projectId: {
         type: Schema.Types.ObjectId,

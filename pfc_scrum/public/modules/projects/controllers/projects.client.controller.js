@@ -18,8 +18,8 @@ projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Proje
     }
 ]);
 
-projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
-    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
+projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', 'Sprints','$modal', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, Projects, Sprints, $modal, $log, $http, $location) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -122,6 +122,11 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 }
 
             });
+        };
+
+        // Get sprints
+        $scope.getSprints = function (project) {
+            $scope.sprints = Sprints.query({ projectId: project._id });
         };
     }
 ]);

@@ -20,7 +20,8 @@
 }
 
 .containment-wrapper {
-    width: auto;
+    width: 100%;
     height: 700px;
-    background: url(../images/bg_corkboard.jpg) top left repeat fixed;
+    /* background: url(../images/bg_corkboard.jpg) top repeat fixed; */
+    background-color: #d3d1ce;
 }

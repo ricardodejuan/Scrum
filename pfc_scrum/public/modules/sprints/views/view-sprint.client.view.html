@@ -1,0 +1,82 @@
+<section data-ng-controller="SprintsViewController">
+
+        <!-- Deck of Cards -->
+    <div class="page-content-wrapper">
+        <div class="phase" ng-repeat="phase in phases | orderBy: 'position'">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        {{phase.phaseName}}
+                        <div class="dropdown pull-right">
+                            <a class="dropdown-toggle unlink" type="button" id="dropdownMenu1" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Add Card&#8230;</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Copy List&#8230;</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Move List&#8230;</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Subscribe</a></li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Move All Cards in This List&#8230;</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Archive All Cards in This List&#8230;</a></li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Archive This List</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="deck panel-body">
+                    <!-- card -->
+                    <div class="panel panel-default clickable" ng-repeat="card in board.cards| filter:{deckId: deck.id} | orderBy: 'position'">
+                        <!-- colored labels -->
+                        <span ng-repeat="labelId in card.labelIds">
+                            <span ng-repeat="label in board.labels| filter:{id:labelId}" style="color: {{label.color}}; float: left; margin-top: -2px;" class="glyphicon glyphicon-bookmark"></span>
+                        </span>
+                        <!-- card content -->
+                        <a href="c/{{card.id}}/{{card.slug}}" class="unlink">
+                            <div class="panel-body">
+                                {{card.name}}
+                            </div>
+                        </a>
+                    </div>
+                    <!-- /card -->
+
+                    <!-- new card form -->
+                    <div class="panel panel-default clickable" ng-show="newCard.deckId === deck.id">
+                        <div class="panel-body">
+                            <form role="form">
+                                <div class="form-group">
+                                    <textarea type="text" class="form-control" ng-model="newCard.description"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success" ng-click="createCard()">Save</button>
+                                <button type="reset" ng-click="hideNewCardForm()" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- /new card form -->
+                </div>
+
+                <a ng-click="showNewCardForm(deck.id)" ng-hide="newCard.deckId === deck.id">
+                    <div class="panel-footer">
+                        Add a task...
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="phase">
+            <button class="btn btn-link" style="width: 100%;" ng-hide="creatingPhase == true" ng-click="creatingPhase = true;">Add a phase&hellip;</button>
+            <div class="panel panel-default" ng-show="creatingPhase == true">
+                <div class="panel-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="newphaseName" placeholder="Title&hellip;" required ng-model="phaseName">
+                        </div>
+                        <button type="submit" class="btn btn-success" ng-click="createPhase(phaseName); creatingPhase = false; phaseName = '';">Save</button>
+                        <button type="reset" ng-click="creatingPhase = false" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

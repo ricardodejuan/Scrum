@@ -23,16 +23,14 @@ var PhaseSchema = new Schema({
         trim: true,
         validate: [validateProperty, 'Phase Title must be between 0 and 16 characters']
     },
-    sprint: {
-        sprintId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Sprint',
-            required: true
-        },
-        order: {
-            type: Number,
-            required: true
-        }
+    position: {
+        type: Number,
+        required: true
+    },
+    sprintId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Sprint',
+        required: true
     }
 });
 

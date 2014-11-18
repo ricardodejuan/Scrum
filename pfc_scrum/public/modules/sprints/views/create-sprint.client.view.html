@@ -1,0 +1,56 @@
+<section class="container" data-ng-controller="SprintsCreateController">
+    <div class="page-header">
+        <h1>Create Sprint</h1>
+    </div>
+
+    <div class="col-md-12">
+        <form name="sprintCreateForm" class="form-horizontal" data-ng-submit="create()" novalidate>
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div data-ng-show="error" class="text-center text-danger">
+                                <div class="alert alert-danger" role="alert">
+                                    <strong data-ng-bind="error"></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="sprintName">Title</label>
+                            <div class="controls">
+                                <input name="sprintName" type="text" data-ng-model="sprintName" id="sprintName" class="form-control" placeholder="Title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="sprintDescription">Description</label>
+                            <div class="controls">
+                                <textarea name="sprintDescription" data-ng-model="sprintDescription" id="sprintDescription" class="form-control" cols="30" rows="5" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="sprintStartTime">Start Time</label>
+                            <p class="input-group">
+                                <input name="sprintStartTime" type="text" id="sprintStartTime" class="form-control" datepicker-popup="{{format}}" ng-model="sprintStartTime" is-open="openedStartDT" datepicker-options="dateOptions" required close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openStartDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="sprintEndTime">End Time</label>
+                            <p class="input-group">
+                                <input name="sprintEndTime" type="text" id="sprintEndTime" class="form-control" datepicker-popup="{{format}}" ng-model="sprintEndTime" is-open="openedEndDT" datepicker-options="dateOptions" required close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openEndDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-group btn-success">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</section>

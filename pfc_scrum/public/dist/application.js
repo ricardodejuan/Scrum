@@ -53,6 +53,13 @@ angular.element(document).ready(function() {
 // Use Applicaion configuration module to register a new module
 ApplicationConfiguration.registerModule('core');
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/17/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('phases');
+/**
  * Created by J. Ricardo de Juan Cajide on 10/16/14.
  */
 'use strict';
@@ -60,12 +67,26 @@ ApplicationConfiguration.registerModule('core');
 // Use Application configuration module to register a new module
 ApplicationConfiguration.registerModule('projects');
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/16/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('sprints');
+/**
  * Created by J. Ricardo de Juan Cajide on 11/8/14.
  */
 'use strict';
 
 // Use Application configuration module to register a new module
 ApplicationConfiguration.registerModule('stories');
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/18/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('tasks');
 /**
  * Created by J. Ricardo de Juan Cajide on 9/14/14.
  */
@@ -296,6 +317,21 @@ angular.module('core').service('Menus', [
     }
 ]);
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/17/14.
+ */
+'use strict';
+
+//Phases service used for communicating with the projects REST endpoints
+angular.module('phases').factory('Phases', ['$resource',
+    function($resource) {
+        return $resource('sprints/:sprintId/phases/:phaseId', { sprintId: '@sprintId', phaseId: '@phaseId' }, {
+            update: {
+                method: 'PUT'
+            }
+        });
+    }
+]);
+/**
  * Created by J. Ricardo de Juan Cajide on 10/16/14.
  */
 'use strict';
@@ -335,9 +371,13 @@ angular.module('projects').config(['$stateProvider',
                 url: '/stories',
                 templateUrl: 'modules/stories/views/list-stories.client.view.html'
             }).
-            state('viewProjects.createSprint', {
+            state('viewProject.createSprint', {
                 url: '/sprints',
                 templateUrl: 'modules/sprints/views/create-sprint.client.view.html'
+            }).
+            state('viewProject.viewSprint', {
+                url: '/sprints/:sprintId',
+                templateUrl: 'modules/sprints/views/view-sprint.client.view.html'
             });
     }
 ]);
@@ -361,8 +401,8 @@ projectsApp.controller('ProjectsController', ['$scope', 'Authentication', 'Proje
     }
 ]);
 
-projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', '$modal', '$log', '$http', '$location',
-    function($scope, $stateParams, Authentication, Projects, $modal, $log, $http, $location) {
+projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Authentication', 'Projects', 'Sprints','$modal', '$log', '$http', '$location',
+    function($scope, $stateParams, Authentication, Projects, Sprints, $modal, $log, $http, $location) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -465,6 +505,11 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 }
 
             });
+        };
+
+        // Get sprints
+        $scope.getSprints = function (project) {
+            $scope.sprints = Sprints.query({ projectId: project._id });
         };
     }
 ]);
@@ -601,6 +646,123 @@ angular.module('projects').factory('Projects', ['$resource', '$http',
         return {
             nonMembers: function (projectId, username) { return nonMembersRequest(projectId, username); }
         };
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/16/14.
+ */
+'use strict';
+
+
+var sprintsApp = angular.module('sprints');
+
+sprintsApp.controller('SprintsCreateController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
+    function ($scope, $stateParams, Authentication, Sprints, $http, $location) {
+
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.create = function() {
+            var s = new Sprints({
+                sprintName: this.sprintName,
+                sprintDescription: this.sprintDescription,
+                sprintStartTime: this.sprintStartTime,
+                sprintEndTime: this.sprintEndTime
+            });
+
+            s.$save({ projectId: $stateParams.projectId }, function(sprint) {
+                $location.path('projects/' + $stateParams.projectId + '/sprints/' + sprint._id);
+
+                $scope.sprintName = '';
+                $scope.sprintDescription = '';
+                $scope.sprintStartTime = '';
+                $scope.sprintEndTime = '';
+
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+
+        $scope.today = function() {
+            $scope.sprintStartTime = new Date();
+        };
+
+        $scope.clear = function () {
+            $scope.sprintStartTime = null;
+        };
+
+        $scope.openStartDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedStartDT = true;
+        };
+
+        $scope.today = function() {
+            $scope.sprintEndTime = new Date();
+        };
+
+        $scope.clear = function () {
+            $scope.sprintEndTime = null;
+        };
+
+        $scope.openEndDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedEndDT = true;
+        };
+
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+
+        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+        $scope.format = $scope.formats[0];
+    }
+]);
+
+
+sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location',
+    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location) {
+
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
+
+        $scope.createPhase = function (phaseName) {
+            var p = new Phases({
+                phaseName: phaseName,
+                position: $scope.phases.length + 1
+            });
+
+            p.$save({ sprintId: $stateParams.sprintId }, function (phase) {
+                $scope.phases.push(phase);
+            });
+        };
+
+        //$scope.tasks = Tasks.query({  });
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/16/14.
+ */
+'use strict';
+
+//Sprints service used for communicating with the stories REST endpoints
+angular.module('sprints').factory('Sprints', ['$resource',
+    function($resource) {
+        return $resource('projects/:projectId/sprints/:sprintId', { projectId: '@projectId', sprintId: '@sprintId' }, {
+            update: {
+                method: 'PUT'
+            }
+        });
     }
 ]);
 /**
@@ -834,6 +996,21 @@ angular.module('stories').factory('Socket', ["$rootScope", function($rootScope) 
 angular.module('stories').factory('Stories', ['$resource',
     function($resource) {
         return $resource('projects/:projectId/stories/:storyId', { projectId: '@projectId', storyId: '@storyId' }, {
+            update: {
+                method: 'PUT'
+            }
+        });
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/18/14.
+ */
+'use strict';
+
+//Phases service used for communicating with the projects REST endpoints
+angular.module('tasks').factory('Tasks', ['$resource',
+    function($resource) {
+        return $resource('sprints/:sprintId/phases/:phaseId', { sprintId: '@sprintId', phaseId: '@phaseId' }, {
             update: {
                 method: 'PUT'
             }

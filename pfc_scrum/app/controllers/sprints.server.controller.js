@@ -23,7 +23,7 @@ exports.create = function(req, res) {
                  sprintStartTime: req.body.sprintStartTime,
                  sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
-                 sprintState: req.body.sprintState,
+                 sprintFinished: req.body.sprintFinished,
                  projectId: req.params.projectId };
     var sprint = new Sprint(data);
 
@@ -44,8 +44,9 @@ exports.create = function(req, res) {
  */
 exports.list = function(req, res) {
     var query = { 'projectId': req.params.projectId };
+    var projection = { sprintName: 1 };
 
-    Sprint.find(query).exec(function(err, sprints) {
+    Sprint.find(query, projection).exec(function(err, sprints) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
@@ -83,7 +84,7 @@ exports.update = function (req, res) {
                  sprintStartTime: req.body.sprintStartTime,
                  sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
-                 sprintState: req.body.sprintState };
+                 sprintFinished: req.body.sprintFinished };
 
     Sprint.findOne(query).exec(function (err, sprint) {
         if (err) {
