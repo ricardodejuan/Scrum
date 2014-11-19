@@ -97,6 +97,19 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.newTask = {};
+
+        $scope.showNewTaskForm = function (taskId) {
+            $scope.newTask._id = taskId;
+        };
+
+        $scope.createTask = function () {
+
+        };
+
+        $scope.hideNewTaskForm = function () {
+
+        };
         //$scope.tasks = Tasks.query({  });
     }
 ]);

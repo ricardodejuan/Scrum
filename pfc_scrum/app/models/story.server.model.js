@@ -40,6 +40,9 @@ var StorySchema = new Schema({
         type: String,
         enum: ['MUST', 'SHOULD', 'COULD', 'WON\'T']
     },
+    storyRuleValidation: [{
+        type: String
+    }],
     storyPosX: {
         type: Number,
         required: true

@@ -21,6 +21,9 @@ module.exports = function(app) {
         .put(users.requiresLogin, stories.hasAuthorization, stories.update)
         .delete(users.requiresLogin, stories.hasAuthorization, stories.delete);
 
+    app.route('/projects/:projectId/storiesBacklog')
+        .put(users.requiresLogin, stories.hasAuthorization, stories.backlog);
+
     // Finish by binding the user middleware*/
     //app.param('pId', stories.projectByID);
 };

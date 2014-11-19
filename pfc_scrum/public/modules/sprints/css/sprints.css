@@ -9,3 +9,16 @@
     width: 100%;
     overflow-x: auto;
 }
+
+.task {
+    background-color: #eee;
+}
+
+.clickable, .nav, .pagination, .carousel, .panel-title A, A {
+    cursor: pointer;
+}
+
+.unlink, A.unlink {
+    text-decoration: none !important;
+    color: #080808;
+}

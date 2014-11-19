@@ -21,7 +21,7 @@ module.exports = function(app) {
         .put(users.requiresLogin, sprints.hasAuthorization, sprints.update)
         .delete(users.requiresLogin, sprints.hasAuthorization, sprints.delete);
 
-    app.route('/projects/:projectId/sprints/:sprintId/backlog')
-        .put(users.requiresLogin, sprints.hasAuthorization, sprints.backlog);
+    app.route('/projects/:projectId/sprintNotFinished')
+        .get(users.requiresLogin, sprints.hasAuthorization, sprints.notFinished);
 
 };

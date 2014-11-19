@@ -67,8 +67,8 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
     };
 }]);
 
-storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal',
-    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal) {
+storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http',
+    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -153,6 +153,44 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
             modalInstance.result.then(function (selectedItem) {
                 $scope.selected = selectedItem;
+            });
+        };
+        
+        $scope.moveToSprint = function (size, selectedStory) {
+
+            var sprints = $http.get('/projects/' + $stateParams.projectId + '/sprintNotFinished');
+            var moveStory = function (id) {
+                $scope.handleDeletedStory(id);
+            };
+            
+            $modal.open({
+                templateUrl: 'modules/stories/views/move-to-sprint.client.view.html',
+                controller: function ($scope, $modalInstance, sprints, story) {
+                    $scope.sprints = sprints;
+
+                    $scope.move = function (sprint) {
+                        $http.put('/projects/' + $stateParams.projectId + '/storiesBacklog', {'story': story, 'sprintId': sprint._id}).success(function(response) {
+                            moveStory(story._id);
+                            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
+                            $modalInstance.close(story);
+                        });
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprints: function () {
+                        return sprints.then(function (response) {
+                            return response.data;
+                        });
+                    },
+                    story: function () {
+                        return selectedStory;
+                    }
+                }
             });
         };
     }

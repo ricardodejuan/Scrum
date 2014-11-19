@@ -747,6 +747,19 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.newTask = {};
+
+        $scope.showNewTaskForm = function (taskId) {
+            $scope.newTask._id = taskId;
+        };
+
+        $scope.createTask = function () {
+
+        };
+
+        $scope.hideNewTaskForm = function () {
+
+        };
         //$scope.tasks = Tasks.query({  });
     }
 ]);
@@ -834,8 +847,8 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
     };
 }]);
 
-storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal',
-    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal) {
+storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http',
+    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -920,6 +933,50 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
             modalInstance.result.then(function (selectedItem) {
                 $scope.selected = selectedItem;
+            });
+        };
+        
+        $scope.moveToSprint = function (size, selectedStory) {
+
+            var sprints = $http.get('/projects/' + $stateParams.projectId + '/sprintNotFinished');
+
+            var modalInstance = $modal.open({
+                templateUrl: 'modules/stories/views/move-to-sprint.client.view.html',
+                controller: ["$scope", "$modalInstance", "sprints", "story", function ($scope, $modalInstance, sprints, story) {
+                    $scope.sprints = sprints;
+
+                    $scope.move = function (sprint) {
+                        $http.put('/projects/' + $stateParams.projectId + '/storiesBacklog', {'stories': [story], 'sprintId': sprint._id}).success(function(response) {
+                            $scope.handleDeletedStory(story._id);
+                            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
+                            $modalInstance.close(story);
+                        });
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                }],
+                size: size,
+                resolve: {
+                    sprints: function () {
+                        return sprints.then(function (response) {
+                            return response.data;
+                        });
+                    },
+                    story: function () {
+                        return selectedStory;
+                    }
+                }
+            });
+
+                 modalInstance.result.then(function (selectedItem) {
+                 $scope.selected = selectedItem;
+                 });
+
+
+            $http.get('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
+
             });
         };
     }

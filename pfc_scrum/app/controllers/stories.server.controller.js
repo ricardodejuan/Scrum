@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
     errorHandler = require('./errors.server.controller'),
     Story = mongoose.model('Story'),
     Project = mongoose.model('Project'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    ObjectId = mongoose.Types.ObjectId;
 
 
 /**
@@ -44,7 +45,7 @@ exports.create = function(req, res) {
  * List of Stories
  */
 exports.list = function(req, res) {
-    var query = { 'projectId': req.params.projectId };
+    var query = { 'projectId': req.params.projectId, 'sprintId': { $exists: false } };
 
     Story.find(query).exec(function(err, stories) {
         if (err) {
@@ -124,6 +125,28 @@ exports.delete = function (req, res) {
             res.send({message: 'Story has been removed.'});
         }
     });
+};
+
+
+/*
+ * Sprint Backlog
+ */
+exports.backlog = function (req, res) {
+    var data = req.body.story;
+    var query = { _id: data._id , projectId: req.params.projectId  };
+    var doc = { $set: { sprintId: req.body.sprintId } };
+    var multi = { multi: true };
+
+    Story.update(query, doc, multi).exec(function (err) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.send({message: 'User stories have been added.'});
+        }
+    });
+
 };
 
 /*

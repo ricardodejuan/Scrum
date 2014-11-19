@@ -10,7 +10,6 @@ var mongoose = require('mongoose'),
     errorHandler = require('./errors.server.controller'),
     Sprint = mongoose.model('Sprint'),
     Project = mongoose.model('Project'),
-    Story = mongoose.model('Story'),
     _ = require('lodash');
 
 
@@ -23,7 +22,6 @@ exports.create = function(req, res) {
                  sprintStartTime: req.body.sprintStartTime,
                  sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
-                 sprintFinished: req.body.sprintFinished,
                  projectId: req.params.projectId };
     var sprint = new Sprint(data);
 
@@ -124,25 +122,22 @@ exports.delete = function (req, res) {
     });
 };
 
-/*
- * Sprint Backlog
+/**
+ * Sprint finished
  */
-exports.backlog = function (req, res) {
-    var data = req.body.stories;
-    var query = { _id: { $in: data }, projectId: req.params.projectId  };
-    var doc = { $set: { sprintId: req.params.sprintId } };
-    var multi = { multi: true };
+exports.notFinished = function (req, res) {
+    var query = { 'projectId': req.params.projectId, 'sprintFinished': false };
+    var projection = { sprintName: 1 };
 
-    Story.update(query, doc, multi).exec(function (err) {
+    Sprint.find(query, projection).exec(function(err, sprints) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
-            res.send({message: 'User stories have been added.'});
+            res.jsonp(sprints);
         }
     });
-
 };
 
 /*

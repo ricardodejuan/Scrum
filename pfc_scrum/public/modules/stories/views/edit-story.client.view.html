@@ -24,24 +24,21 @@
                         <div class="form-group">
                             <label class="control-label" for="storyDescription">Description</label>
                             <div class="controls">
-                                <textarea name="storyDescription" data-ng-model="story.storyDescription" id="storyDescription" class="form-control" cols="30" rows="10" placeholder="Description" required></textarea>
+                                <textarea name="storyDescription" data-ng-model="story.storyDescription" id="storyDescription" class="form-control" cols="30" rows="5" placeholder="Description" required></textarea>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label" for="storyValue">Value</label>
                             <div class="controls">
-                                <input name="input" type="number" data-ng-model="story.storyValue" id="storyValue" class="form-control" min="0" max="100" required>
+                                <label class="control-label" for="storyValue">Value: </label>
+                                <input name="input" type="number" data-ng-model="story.storyValue" id="storyValue" class="" min="0" max="100" required>
+
+                                <label class="control-label" for="storyPoint">Story Points: </label>
+                                <input name="input" type="number" data-ng-model="story.storyPoint" id="storyPoint" class="" min="0" max="100" required>
+
+                                <label class="control-label" for="storyPriority">Story Priority: </label>
+                                <select data-ng-model="story.storyPriority" ng-options="priority for priority in priorities" id="storyPriority"></select>
+
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label" for="storyPoint">Story Points</label>
-                            <div class="controls">
-                                <input name="input" type="number" data-ng-model="story.storyPoint" id="storyPoint" class="form-control" min="0" max="100" required>
-                            </div>
-                        </div>
-                        <div  class="form-group">
-                            <label class="control-label" for="storyPriority">Story Priority</label>
-                            <select data-ng-model="story.storyPriority" ng-options="priority for priority in priorities" id="storyPriority" class="form-control"></select>
                         </div>
                     </div>
                 </div>

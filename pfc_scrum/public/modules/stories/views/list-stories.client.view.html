@@ -5,7 +5,7 @@
 
         <div sticky-note ng-repeat="story in stories" story="story" class="alert sticky-note">
             <button type="button" class="close" ng-click="deleteStory(story)"><span class="btn-xs glyphicon glyphicon-trash"></span></button>
-            <button type="button" class="close" ng-click=""><span class="btn-xs glyphicon glyphicon-share-alt"></span></button>
+            <button type="button" class="close" ng-click="moveToSprint('sm',story)"><span class="btn-xs glyphicon glyphicon-share-alt"></span></button>
             <input ng-model="story.storyTitle" ng-change="updateStory(story)" type="text" class="title" >
             <button type="button" class="close" ng-click="editStory('', story)"><span class="btn-xs glyphicon glyphicon-cog"></span></button>
             <textarea ng-model="story.storyDescription" ng-change="updateStory(story)" class="body"></textarea>
