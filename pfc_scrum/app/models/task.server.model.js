@@ -13,7 +13,7 @@ var Schema = mongoose.Schema;
  * A Validation function for properties
  */
 var validateProperty = function(property) {
-    return (property && property.length < 20);
+    return (property && property.length <= 20);
 };
 
 var TaskSchema = new Schema({
@@ -30,23 +30,23 @@ var TaskSchema = new Schema({
     },
     taskPriority: {
         type: String,
-        required: true,
-        enum: ['VERY_HIGH', 'HIGH', 'MEDIUM', 'LOW', 'VERY_LOW']
+        enum: ['VERY HIGH', 'HIGH', 'MEDIUM', 'LOW', 'VERY LOW']
     },
-    taskEstimate: {
+    taskPoints: {
         type: Number,
         required: true
     },
-    taskRemark: [{
+    taskRemark: {
         type: String,
         trim: true
-    }],
-    taskRuleValidation: [{
+    },
+    taskRuleValidation: {
         type: String,
         trim: true
-    }],
+    },
     isFinished: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     storyId: {
         type: Schema.Types.ObjectId,

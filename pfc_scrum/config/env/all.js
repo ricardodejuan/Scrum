@@ -15,7 +15,8 @@ module.exports = {
         lib: {
             css: [
                 'public/lib/bootstrap/dist/css/bootstrap.min.css',
-                'public/lib/bootstrap/dist/css/bootstrap-theme.css'
+                'public/lib/bootstrap/dist/css/bootstrap-theme.css',
+                'public/lib/angular-xeditable/dist/css/xeditable.css'
             ],
             js: [
                 'public/lib/jquery/dist/jquery.min.js',
@@ -31,7 +32,8 @@ module.exports = {
                 'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
                 'public/lib/bootstrap/dist/js/bootstrap.min.js',
                 'public/lib/angular-socket-io/socket.min.js',
-                'public/lib/socket.io-client/socket.io.js'
+                'public/lib/socket.io-client/socket.io.js',
+                'public/lib/angular-xeditable/dist/js/xeditable.js'
             ]
         },
         css: [

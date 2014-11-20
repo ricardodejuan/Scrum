@@ -1,0 +1,150 @@
+<section data-ng-controller="TasksController" xmlns="http://www.w3.org/1999/html">
+    <div class="modal-header">
+        <h3 class="modal-title">Tasks</h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="col-md-6">
+            <ul class="nav nav-list">
+                <div data-ng-repeat="task in tasks">
+                    <li>
+                        <h4 class="text-left">
+                            <a href="" ng-click="viewTask(task)">
+                                <i class="glyphicon glyphicon-list-alt"></i>
+                                {{task.taskName}}
+                            </a>
+                            <a href="" ng-click="deleteTask(task, story)">
+                                <i class="glyphicon glyphicon-remove btn-xs"></i>
+                            </a>
+                        </h4>
+                    </li>
+                </div>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul class="nav nav-pills">
+                <li role="presentation"><a href="" ng-click="isTask = true">Add Task</a></li>
+                <li role="presentation"><a href="" ng-click="isTask = false">Edit Task</a></li>
+            </ul>
+
+            <div ng-show="isTask">
+
+                <form name="taskForm">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label" for="taskName">Title</label>
+                            <div class="controls">
+                                <input name="taskName" type="text" data-ng-model="taskName" id="taskName" class="form-control" placeholder="Title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskDescription">Description</label>
+                            <div class="controls">
+                                <textarea name="taskDescription" data-ng-model="taskDescription" id="taskDescription" class="form-control" cols="30" rows="4" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPriority">Priority</label>
+                            <div class="controls">
+                                <select data-ng-model="taskPriority" ng-options="priority for priority in priorities" id="taskPriority" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPoints">Task Points: </label>
+                            <div class="controls">
+                                <input name="input" type="number" data-ng-model="taskPoints" id="taskPoints" class="form-control" min="0" max="100" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRemark">Task Remarks: </label>
+                            <div class="controls">
+                                <textarea name="taskRemark" data-ng-model="taskRemark" id="taskRemark" class="form-control" cols="30" rows="4" placeholder="Remarks"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRuleValidation">Task Validations: </label>
+                            <div class="controls">
+                                <textarea name="taskRuleValidation" data-ng-model="taskRuleValidation" id="taskRuleValidation" class="form-control" cols="30" rows="4" placeholder="Rule validations"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div data-ng-show="error" class="text-center text-danger">
+                                <div class="alert alert-danger" role="alert">
+                                    <strong data-ng-bind="error"></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-info" ng-click="createTask(story)">Create</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div ng-hide="isTask">
+                <form editable-form name="editableForm" onaftersave="updateTask()">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label" for="taskName">Title</label>
+                            <div class="controls">
+                                <input type="text" editable-text="selectedTask.taskName" e-name="taskName" class="form-control" onbeforesave="checkTitle($data)" e-require data-ng-model="selectedTask.taskName" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskDescription">Description</label>
+                            <div class="controls">
+                                <textarea editable-textarea="selectedTask.taskDescription" e-rows="4" e-cols="80" e-name="taskDescription" class="form-control" data-ng-model="selectedTask.taskDescription" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPriority">Priority</label>
+                            <div class="controls">
+                                <span editable-select="selectedTask.taskPriority" e-name="taskPriority" e-ng-options="priority for priority in priorities" class="form-control" readonly>
+                                    {{ selectedTask.taskPriority }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPoints">Task Points</label>
+                            <div class="controls">
+                                <span editable-number="selectedTask.taskPoints" e-name="taskPoints" e-min="0" e-max="100" e-required class="form-control" readonly>
+                                    {{ selectedTask.taskPoints }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRemark">Remarks</label>
+                            <div class="controls">
+                                <textarea editable-textarea="selectedTask.taskRemark" e-rows="4" e-cols="80" e-name="taskRemark" class="form-control" data-ng-model="selectedTask.taskRemark" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRuleValidation">Validations</label>
+                            <div class="controls">
+                                <textarea editable-textarea="selectedTask.taskRuleValidation" e-rows="4" e-cols="80" e-name="taskRuleValidation" class="form-control" data-ng-model="selectedTask.taskRuleValidation" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!-- button to show form -->
+                            <button type="button" class="btn btn-default" ng-click="editableForm.$show()" ng-show="!editableForm.$visible">
+                                Edit
+                            </button>
+                            <!-- buttons to submit / cancel form -->
+                            <span ng-show="editableForm.$visible">
+                                <button type="submit" class="btn btn-success" ng-disabled="editableForm.$waiting">
+                                    Update
+                                </button>
+                                <button type="button" class="btn btn-default" ng-disabled="editableForm.$waiting" ng-click="editableForm.$cancel()">
+                                    Cancel
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <div class="row"></div>
+    <div class="modal-footer">
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</section>

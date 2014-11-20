@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -16,6 +16,11 @@ var ApplicationConfiguration = (function () {
 
         // Add the module to the AngularJS configuration file
         angular.module(applicationModuleName).requires.push(moduleName);
+
+        // Bootstrap3 theme. Can be also 'bs2', 'default'
+        angular.module(moduleName).run(["editableOptions", function(editableOptions) {
+            editableOptions.theme = 'bs3';
+        }]);
     };
 
     return {
@@ -847,8 +852,8 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
     };
 }]);
 
-storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http',
-    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http) {
+storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http', 'Tasks',
+    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http, Tasks) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -939,15 +944,18 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
         $scope.moveToSprint = function (size, selectedStory) {
 
             var sprints = $http.get('/projects/' + $stateParams.projectId + '/sprintNotFinished');
-
-            var modalInstance = $modal.open({
+            var moveStory = function (id) {
+                $scope.handleDeletedStory(id);
+            };
+            
+            $modal.open({
                 templateUrl: 'modules/stories/views/move-to-sprint.client.view.html',
                 controller: ["$scope", "$modalInstance", "sprints", "story", function ($scope, $modalInstance, sprints, story) {
                     $scope.sprints = sprints;
 
                     $scope.move = function (sprint) {
-                        $http.put('/projects/' + $stateParams.projectId + '/storiesBacklog', {'stories': [story], 'sprintId': sprint._id}).success(function(response) {
-                            $scope.handleDeletedStory(story._id);
+                        $http.put('/projects/' + $stateParams.projectId + '/storiesBacklog', {'story': story, 'sprintId': sprint._id}).success(function(response) {
+                            moveStory(story._id);
                             Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
                             $modalInstance.close(story);
                         });
@@ -969,14 +977,31 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                     }
                 }
             });
+        };
+        
+        $scope.addTasks = function (size, selectedStory) {
+            $modal.open({
+                templateUrl: 'modules/stories/views/tasks.client.view.html',
+                controller: ["$scope", "$modalInstance", "story", function ($scope, $modalInstance, story) {
 
-                 modalInstance.result.then(function (selectedItem) {
-                 $scope.selected = selectedItem;
-                 });
+                    $scope.story = story;
 
+                    $scope.tasks = Tasks.query({ storyId: story._id });
 
-            $http.get('/projects/' + $stateParams.projectId + '/leave').success(function(response) {
+                    $scope.move = function () {
+                        $modalInstance.close(story);
+                    };
 
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                }],
+                size: size,
+                resolve: {
+                    story: function () {
+                        return selectedStory;
+                    }
+                }
             });
         };
     }
@@ -1004,6 +1029,61 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
     }
 ]);
 
+storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks',
+    function ($scope, $stateParams, Authentication, $location, Tasks) {
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.priorities = [
+            'VERY HIGH',
+            'HIGH',
+            'MEDIUM',
+            'LOW',
+            'VERY LOW'
+        ];
+
+        $scope.isTask = true;
+
+        $scope.createTask = function (story) {
+            var t = new Tasks({
+                taskName: this.taskName,
+                taskDescription: this.taskDescription,
+                taskPriority: this.taskPriority,
+                taskPoints: this.taskPoints,
+                taskRemark: this.taskRemark,
+                taskRuleValidation: this.taskRuleValidation
+            });
+            t.$save({ storyId: story._id }, function (task) {
+                $scope.tasks.push(task);
+
+                $scope.taskName = null;
+                $scope.taskDescription = '';
+                $scope.taskPriority = '';
+                $scope.taskPoints = '';
+                $scope.taskRemark = '';
+                $scope.taskRuleValidation = '';
+            });
+        };
+        
+        $scope.deleteTask = function (task, story) {
+            $scope.handleDeletedTask(task._id);
+            task.$remove({ storyId: story._id,  taskId: task._id });
+        };
+
+        $scope.handleDeletedTask = function(id) {
+            var oldTasks = $scope.tasks,
+                newTasks = [];
+
+            angular.forEach(oldTasks, function(task) {
+                if(task._id !== id) newTasks.push(task);
+            });
+
+            $scope.tasks = newTasks;
+        };
+    }
+]);
 /**
  * Created by J. Ricardo de Juan Cajide on 11/10/14.
  */
@@ -1067,7 +1147,7 @@ angular.module('stories').factory('Stories', ['$resource',
 //Phases service used for communicating with the projects REST endpoints
 angular.module('tasks').factory('Tasks', ['$resource',
     function($resource) {
-        return $resource('sprints/:sprintId/phases/:phaseId', { sprintId: '@sprintId', phaseId: '@phaseId' }, {
+        return $resource('stories/:storyId/tasks/:taskId', { storyId: '@storyId', taskId: '@taskId' }, {
             update: {
                 method: 'PUT'
             }

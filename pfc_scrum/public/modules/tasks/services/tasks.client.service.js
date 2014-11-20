@@ -6,7 +6,7 @@
 //Phases service used for communicating with the projects REST endpoints
 angular.module('tasks').factory('Tasks', ['$resource',
     function($resource) {
-        return $resource('sprints/:sprintId/phases/:phaseId', { sprintId: '@sprintId', phaseId: '@phaseId' }, {
+        return $resource('stories/:storyId/tasks/:taskId', { storyId: '@storyId', taskId: '@taskId' }, {
             update: {
                 method: 'PUT'
             }

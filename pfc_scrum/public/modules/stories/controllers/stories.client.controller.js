@@ -67,8 +67,8 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
     };
 }]);
 
-storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http',
-    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http) {
+storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http', 'Tasks',
+    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http, Tasks) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -193,6 +193,32 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                 }
             });
         };
+        
+        $scope.addTasks = function (size, selectedStory) {
+            $modal.open({
+                templateUrl: 'modules/stories/views/tasks.client.view.html',
+                controller: function ($scope, $modalInstance, story) {
+
+                    $scope.story = story;
+
+                    $scope.tasks = Tasks.query({ storyId: story._id });
+
+                    $scope.move = function () {
+                        $modalInstance.close(story);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    story: function () {
+                        return selectedStory;
+                    }
+                }
+            });
+        };
     }
 ]);
 
@@ -214,6 +240,80 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
             var story = updatedStory;
             story.$update({ storyId: story._id });
             Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
+        };
+    }
+]);
+
+storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks', '$log',
+    function ($scope, $stateParams, Authentication, $location, Tasks, $log) {
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.priorities = [
+            'VERY HIGH',
+            'HIGH',
+            'MEDIUM',
+            'LOW',
+            'VERY LOW'
+        ];
+
+        $scope.isTask = true;
+
+        $scope.createTask = function (story) {
+            var t = new Tasks({
+                taskName: this.taskName,
+                taskDescription: this.taskDescription,
+                taskPriority: this.taskPriority,
+                taskPoints: this.taskPoints,
+                taskRemark: this.taskRemark,
+                taskRuleValidation: this.taskRuleValidation
+            });
+            t.$save({ storyId: story._id }, function (task) {
+                $scope.tasks.push(task);
+
+                $scope.taskName = '';
+                $scope.taskDescription = '';
+                $scope.taskPriority = {};
+                $scope.taskPoints = 0;
+                $scope.taskRemark = '';
+                $scope.taskRuleValidation = '';
+            });
+        };
+        
+        $scope.deleteTask = function (task, story) {
+            $scope.handleDeletedTask(task._id);
+            task.$remove({ storyId: story._id,  taskId: task._id });
+        };
+
+        $scope.handleDeletedTask = function(id) {
+            var oldTasks = $scope.tasks,
+                newTasks = [];
+
+            angular.forEach(oldTasks, function(task) {
+                if(task._id !== id) newTasks.push(task);
+            });
+
+            $scope.tasks = newTasks;
+        };
+
+        $scope.viewTask = function (task) {
+            $scope.isTask = false;
+            $scope.selectedTask = task;
+        };
+
+        $scope.updateTask = function() {
+            // $scope.selectedTask already updated!
+            $log.info($scope.story);
+            $log.info($scope.selectedTask);
+            $scope.selectedTask.$update({ storyId: $scope.story._id, taskId: $scope.selectedTask._id });
+        };
+
+        $scope.checkTitle = function (data) {
+            if (data.length >20) {
+                return 'Max length is 20';
+            }
         };
     }
 ]);
