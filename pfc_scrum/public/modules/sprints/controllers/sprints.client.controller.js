@@ -76,8 +76,8 @@ sprintsApp.controller('SprintsCreateController', ['$scope', '$stateParams', 'Aut
 ]);
 
 
-sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location', '$modal',
-    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location, $modal) {
+sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location', '$modal', '$log',
+    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location, $modal, $log) {
 
         $scope.authentication = Authentication;
 
@@ -91,6 +91,20 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
         $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
             $scope.stories = result.data;
+
+            if ($scope.stories.length > 0){
+                var tasks = [];
+
+                angular.forEach($scope.stories, function (story) {
+                    $http.get('/stories/' + story._id + '/tasks').then(function (result) {
+                        angular.forEach(result.data, function (t) {
+                            tasks.push(t);
+                        });
+                    });
+                });
+
+                $scope.tasks = tasks;
+            }
         });
 
         $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
@@ -171,6 +185,21 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             modalInstance.result.then(function (selectedItem) {
                 $scope.selected = selectedItem;
             });
+        };
+
+        $scope.toggleState = function(event, ui, category) {
+            var filtered = $scope.tasks.filter(function(el) {
+                return el.state === category.state;
+            });
+            if((filtered.length < category.max || category.max === -1)) {
+                this.toggler.state = category.state;
+            }
+
+            var ndx = $scope.tasks.map(function(t) {return t.task;}).indexOf(this.toggler.task);
+            $scope.tasks.push(this.toggler);
+            $scope.tasks.splice(ndx, 1);
+            $scope.dirty_array = true;
+            this.toggler = {};
         };
     }
 ]);

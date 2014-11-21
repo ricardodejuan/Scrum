@@ -57,14 +57,12 @@ var TaskSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
-    phase: {
-        phaseId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Phase'
-        },
-        order: {
-            type: Number
-        }
+    phaseId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Phase'
+    },
+    position: {
+        type: Number
     }
 
 });

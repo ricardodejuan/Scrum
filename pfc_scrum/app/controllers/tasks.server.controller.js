@@ -25,7 +25,8 @@ exports.create = function(req, res) {
                  taskRuleValidation: req.body.taskRuleValidation,
                  storyId: req.params.storyId,
                  users: req.body.users,
-                 phase: req.body.phase
+                 phase: req.body.phaseId,
+                 position: req.body.position
     };
     var task = new Task(data);
 
@@ -88,7 +89,8 @@ exports.update = function (req, res) {
                  taskRuleValidation: req.body.taskRuleValidation,
                  isFinished: req.body.isFinished,
                  users: req.body.users,
-                 phase: req.body.phase
+                 phase: req.body.phaseId,
+                 position: req.body.position
     };
 
     Task.findOne(query).exec(function (err, task) {
