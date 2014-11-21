@@ -33,7 +33,8 @@ module.exports = {
                 'public/lib/bootstrap/dist/js/bootstrap.min.js',
                 'public/lib/angular-socket-io/socket.min.js',
                 'public/lib/socket.io-client/socket.io.js',
-                'public/lib/angular-xeditable/dist/js/xeditable.js'
+                'public/lib/angular-xeditable/dist/js/xeditable.js',
+                'public/lib/angular-dragdrop/src/angular-dragdrop.min.js'
             ]
         },
         css: [

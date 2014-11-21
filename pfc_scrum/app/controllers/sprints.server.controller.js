@@ -10,6 +10,7 @@ var mongoose = require('mongoose'),
     errorHandler = require('./errors.server.controller'),
     Sprint = mongoose.model('Sprint'),
     Project = mongoose.model('Project'),
+    Story = mongoose.model('Story'),
     _ = require('lodash');
 
 
@@ -136,6 +137,24 @@ exports.notFinished = function (req, res) {
             });
         } else {
             res.jsonp(sprints);
+        }
+    });
+};
+
+
+/**
+ * Sprint Backlog
+ */
+exports.backlog = function (req, res) {
+    var query = { 'projectId': req.params.projectId, 'sprintId': req.params.sprintId };
+
+    Story.find(query).exec(function(err, stories) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp(stories);
         }
     });
 };

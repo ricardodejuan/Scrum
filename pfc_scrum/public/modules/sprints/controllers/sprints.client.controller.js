@@ -76,13 +76,22 @@ sprintsApp.controller('SprintsCreateController', ['$scope', '$stateParams', 'Aut
 ]);
 
 
-sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location',
-    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location) {
+sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location', '$modal',
+    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location, $modal) {
 
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
+
+        $scope.sprint =  Sprints.get({
+            projectId: $stateParams.projectId,
+            sprintId: $stateParams.sprintId
+        });
+
+        $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
+            $scope.stories = result.data;
+        });
 
         $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
 
@@ -96,20 +105,72 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $scope.phases.push(phase);
             });
         };
-
-        $scope.newTask = {};
-
-        $scope.showNewTaskForm = function (taskId) {
-            $scope.newTask._id = taskId;
+        
+        $scope.deletePhase = function (phase) {
+            $scope.handleDeletedPhase(phase._id);
+            phase.$remove({ sprintId: $stateParams.sprintId, phaseId: phase._id });
         };
 
-        $scope.createTask = function () {
+        $scope.handleDeletedPhase = function(id) {
+            var oldPhases = $scope.phases,
+                newPhases = [];
 
+            angular.forEach(oldPhases, function(phase) {
+                if(phase._id !== id) newPhases.push(phase);
+            });
+
+            $scope.phases = newPhases;
+        };
+        
+        $scope.movePB = function (story) {
+            $scope.handleDeletedStory(story._id);
+            $http.put('/projects/' + $stateParams.projectId + '/stories/' + story._id + '/productBacklog');
         };
 
-        $scope.hideNewTaskForm = function () {
+        $scope.handleDeletedStory = function(id) {
+            var oldStories = $scope.stories,
+                newStories = [];
 
+            angular.forEach(oldStories, function(story) {
+                if(story._id !== id) newStories.push(story);
+            });
+
+            $scope.stories = newStories;
         };
-        //$scope.tasks = Tasks.query({  });
+
+        $scope.viewStory = function (size, selectedStory) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'modules/stories/views/view-story.client.view.html',
+                controller: function ($scope, $modalInstance, story) {
+                    $scope.story = story;
+
+                    $scope.priorities = [
+                        'MUST',
+                        'SHOULD',
+                        'COULD',
+                        'WON\'T'
+                    ];
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.story);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    story: function () {
+                        return selectedStory;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            });
+        };
     }
 ]);

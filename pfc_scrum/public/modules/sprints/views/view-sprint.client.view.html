@@ -1,9 +1,48 @@
 <section data-ng-controller="SprintsViewController">
 
-        <!-- Deck of Cards -->
+    <!-- Sprint Backlog -->
     <div class="page-content-wrapper">
+        <div class="col-md-3">
+            <div class="panel panel-default" data-drop="true" ng-model="toggler">
+                <h3 class="panel-heading panel-title">Sprint Backlog</h3>
+                <div class="panel-body">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-warning" ng-repeat="story in stories" ng-model="story">
+                            <h5><span ng-click="edit(category.state, $index)">
+                                {{story.storyTitle}}
+                            </span>
+                            <span class="pull-right">
+                                <button type="button" class="close" ng-click="viewStory('', story)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                <button type="button" class="close" ng-click="movePB(story)"><span class="btn-xs glyphicon glyphicon-arrow-left"/></button>
+                            </span></h5>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <div class="phase" ng-repeat="phase in phases | orderBy: 'position'">
-            <div class="panel panel-default">
+            <div class="panel panel-default" data-drop="true" jqyoui-droppable="{onDrop: 'toggleState(phase)'}" ng-model="toggler">
+                <h3 class="panel-heading panel-title">{{phase.phaseName}}</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group no-bot-padding">
+                    <li ng-class="phase.class" class="list-group-item" ng-repeat="task in tasks | filter:{state:category.state, task:search}" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task">
+                        <span id="{{category.state}}_{{$index}}_text" ng-click="edit(category.state, $index)">
+                            {{task.task}}
+                        </span>
+                        <input id="{{category.state}}_{{$index}}_input" class="hidden" type="text" ng-model="task.task" ng-keyup="inputHandler($event, category.state, $index)">
+                        <span class="pull-right">
+                            <button class="close dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-icons" role="menu">
+                                <li><a href="#" ng-click="garbage(task)"><span class="glyphicon glyphicon-trash"></span></a></li>
+                            </ul>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <!--    <div class="panel panel-default">
 
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -25,7 +64,7 @@
                 </div>
                 <div class="task panel-body">
                     <!-- new card form -->
-                    <div class="panel panel-default clickable" ng-show="true">
+                 <!--   <div class="panel panel-default clickable" ng-show="true">
                         <div class="panel-body">
                             <form role="form">
                                 <div class="form-group">
@@ -37,7 +76,7 @@
                         </div>
                     </div>
                     <!-- /new card form -->
-                </div>
+          <!--      </div>
 
                 <a ng-click="showNewTaskForm(phase._id)" ng-hide="newTask._id === phase._id">
                     <div class="panel-footer">
@@ -45,6 +84,7 @@
                     </div>
                 </a>
             </div>
+    -->
         </div>
         <div class="phase">
             <button class="btn btn-link" style="width: 100%;" ng-hide="creatingPhase == true" ng-click="creatingPhase = true;">Add a phase&hellip;</button>

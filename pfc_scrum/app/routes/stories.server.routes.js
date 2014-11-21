@@ -21,6 +21,9 @@ module.exports = function(app) {
         .put(users.requiresLogin, stories.hasAuthorization, stories.update)
         .delete(users.requiresLogin, stories.hasAuthorization, stories.delete);
 
+    app.route('/projects/:projectId/stories/:storyId/productBacklog')
+        .put(users.requiresLogin, stories.hasAuthorization, stories.productBacklog);
+
     app.route('/projects/:projectId/storiesBacklog')
         .put(users.requiresLogin, stories.hasAuthorization, stories.backlog);
 

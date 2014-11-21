@@ -27,8 +27,8 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
 
         // Get a project
         $scope.project =  Projects.get({
-                projectId: $stateParams.projectId
-            });
+            projectId: $stateParams.projectId
+        });
 
         // Open a modal window
         $scope.modal = function (size, selectedProject) {

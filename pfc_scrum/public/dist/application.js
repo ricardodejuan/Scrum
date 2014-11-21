@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -415,8 +415,8 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
 
         // Get a project
         $scope.project =  Projects.get({
-                projectId: $stateParams.projectId
-            });
+            projectId: $stateParams.projectId
+        });
 
         // Open a modal window
         $scope.modal = function (size, selectedProject) {
@@ -739,6 +739,15 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
 
+        $scope.sprint =  Sprints.get({
+            projectId: $stateParams.projectId,
+            sprintId: $stateParams.sprintId
+        });
+
+        $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
+            $scope.stories = result.data;
+        });
+
         $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
 
         $scope.createPhase = function (phaseName) {
@@ -751,21 +760,22 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $scope.phases.push(phase);
             });
         };
-
-        $scope.newTask = {};
-
-        $scope.showNewTaskForm = function (taskId) {
-            $scope.newTask._id = taskId;
+        
+        $scope.deletePhase = function (phase) {
+            $scope.handleDeletedPhase(phase._id);
+            phase.$remove({ sprintId: $stateParams.sprintId, phaseId: phase._id });
         };
 
-        $scope.createTask = function () {
+        $scope.handleDeletedPhase = function(id) {
+            var oldPhases = $scope.phases,
+                newPhases = [];
 
+            angular.forEach(oldPhases, function(phase) {
+                if(phase._id !== id) newPhases.push(phase);
+            });
+
+            $scope.stories = newPhases;
         };
-
-        $scope.hideNewTaskForm = function () {
-
-        };
-        //$scope.tasks = Tasks.query({  });
     }
 ]);
 /**
@@ -1029,8 +1039,8 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
     }
 ]);
 
-storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks',
-    function ($scope, $stateParams, Authentication, $location, Tasks) {
+storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks', '$log',
+    function ($scope, $stateParams, Authentication, $location, Tasks, $log) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -1058,10 +1068,10 @@ storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authenticat
             t.$save({ storyId: story._id }, function (task) {
                 $scope.tasks.push(task);
 
-                $scope.taskName = null;
+                $scope.taskName = '';
                 $scope.taskDescription = '';
-                $scope.taskPriority = '';
-                $scope.taskPoints = '';
+                $scope.taskPriority = {};
+                $scope.taskPoints = 0;
                 $scope.taskRemark = '';
                 $scope.taskRuleValidation = '';
             });
@@ -1081,6 +1091,24 @@ storiesApp.controller('TasksController', ['$scope', '$stateParams', 'Authenticat
             });
 
             $scope.tasks = newTasks;
+        };
+
+        $scope.viewTask = function (task) {
+            $scope.isTask = false;
+            $scope.selectedTask = task;
+        };
+
+        $scope.updateTask = function() {
+            // $scope.selectedTask already updated!
+            $log.info($scope.story);
+            $log.info($scope.selectedTask);
+            $scope.selectedTask.$update({ storyId: $scope.story._id, taskId: $scope.selectedTask._id });
+        };
+
+        $scope.checkTitle = function (data) {
+            if (data.length >20) {
+                return 'Max length is 20';
+            }
         };
     }
 ]);

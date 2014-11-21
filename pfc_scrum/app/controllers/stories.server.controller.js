@@ -149,6 +149,25 @@ exports.backlog = function (req, res) {
 
 };
 
+/**
+ * Return US to ProductBacklog
+ */
+exports.productBacklog = function (req, res) {
+    var query = { _id: req.params.storyId };
+    var doc = { $unset: { sprintId: '' } };
+
+    Story.update(query, doc).exec(function (err) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.send({message: 'User stories have been removed from Sprint Backlog.'});
+        }
+    });
+
+};
+
 /*
  * Project authorization middleware
  */
