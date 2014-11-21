@@ -154,7 +154,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
         $scope.viewStory = function (size, selectedStory) {
 
-            var modalInstance = $modal.open({
+            $modal.open({
                 templateUrl: 'modules/stories/views/view-story.client.view.html',
                 controller: function ($scope, $modalInstance, story) {
                     $scope.story = story;
@@ -167,11 +167,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                     ];
 
                     $scope.ok = function () {
-                        $modalInstance.close($scope.story);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
+                        $modalInstance.close();
                     };
                 },
                 size: size,
@@ -181,9 +177,34 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                     }
                 }
             });
+        };
 
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
+        $scope.viewTask = function (size, selectedTask) {
+
+            $modal.open({
+                templateUrl: 'modules/tasks/views/view-task.client.view.html',
+                controller: function ($scope, $modalInstance, task) {
+                    $scope.task = task;
+
+                    $scope.priorities = [
+                        'VERY HIGH',
+                        'HIGH',
+                        'MEDIUM',
+                        'LOW',
+                        'VERY LOW'
+                    ];
+
+                    $scope.ok = function () {
+                        $modalInstance.close();
+                    };
+
+                },
+                size: size,
+                resolve: {
+                    task: function () {
+                        return selectedTask;
+                    }
+                }
             });
         };
 
