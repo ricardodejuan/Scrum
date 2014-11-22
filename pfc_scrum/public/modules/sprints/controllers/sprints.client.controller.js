@@ -89,6 +89,8 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             sprintId: $stateParams.sprintId
         });
 
+        $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
+
         $scope.tasks = new Array();
 
         $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
@@ -108,8 +110,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $scope.tasks = tasks;
             }
         });
-
-        $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
 
         $scope.createPhase = function (phaseName) {
             var p = new Phases({

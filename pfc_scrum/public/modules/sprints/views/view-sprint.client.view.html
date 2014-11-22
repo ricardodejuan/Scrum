@@ -2,7 +2,7 @@
 
     <div class="page-content-wrapper">
         <!-- Sprint Backlog -->
-        <div class="phase col-md-3">
+        <div class="phase phase-size">
             <div class="panel panel-default" data-drop="true" ng-model="toggler">
                 <h3 class="panel-heading panel-title">Sprint Backlog</h3>
                 <div class="panel-body">
@@ -21,7 +21,7 @@
             </div>
         </div>
         <!-- Phases -->
-        <div class="phase col-md-3" ng-repeat="phase in phases">
+        <div class="phase phase-size" ng-repeat="phase in phases | orderBy: 'position'">
             <div class="panel panel-default" data-drop="true" jqyoui-droppable="{onDrop: 'toggleState(phase)'}" ng-model="toggler">
                 <h3 class="panel-heading panel-title">
                     {{phase.phaseName}}
@@ -40,9 +40,8 @@
                     </ul>
                 </div>
             </div>
-
-        <!-- Add new Phase -->
         </div>
+        <!-- Add new Phase -->
         <div class="phase phase-size">
             <button class="btn btn-link" ng-hide="creatingPhase == true" ng-click="creatingPhase = true;">Add a phase&hellip;</button>
             <div class="panel panel-default" ng-show="creatingPhase == true">

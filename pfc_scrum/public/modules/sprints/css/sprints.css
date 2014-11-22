@@ -4,6 +4,11 @@
     padding-right: 15px;
 }
 
+.phase-size {
+    width: 25%;
+    vertical-align: top;
+}
+
 .page-content-wrapper {
     white-space: nowrap;
     width: 100%;
