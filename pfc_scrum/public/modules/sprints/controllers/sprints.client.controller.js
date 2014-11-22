@@ -89,6 +89,8 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             sprintId: $stateParams.sprintId
         });
 
+        $scope.tasks = new Array();
+
         $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
             $scope.stories = result.data;
 
@@ -123,6 +125,16 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         $scope.deletePhase = function (phase) {
             $scope.handleDeletedPhase(phase._id);
             phase.$remove({ sprintId: $stateParams.sprintId, phaseId: phase._id });
+        };
+
+        $scope.existTasks = function (id) {
+            var exist = false;
+            angular.forEach($scope.tasks, function (task) {
+                if (task.phaseId === id) {
+                    exist = true;
+                }
+            });
+            return exist;
         };
 
         $scope.handleDeletedPhase = function(id) {
@@ -208,19 +220,20 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
-        $scope.toggleState = function(event, ui, category) {
-            var filtered = $scope.tasks.filter(function(el) {
-                return el.state === category.state;
-            });
-            if((filtered.length < category.max || category.max === -1)) {
-                this.toggler.state = category.state;
-            }
+        this.toggler = {};
 
-            var ndx = $scope.tasks.map(function(t) {return t.task;}).indexOf(this.toggler.task);
+        $scope.toggleState = function(event, ui, phase) {
+            this.toggler.phaseId = phase._id;
+
+            var task = new Tasks(this.toggler);
+            task.$update({ storyId: task.storyId, taskId: task._id });
+
+            var ndx = $scope.tasks.map(function(t) {return t.taskName;}).indexOf(this.toggler.taskName);
             $scope.tasks.push(this.toggler);
             $scope.tasks.splice(ndx, 1);
-            $scope.dirty_array = true;
+
             this.toggler = {};
         };
+
     }
 ]);

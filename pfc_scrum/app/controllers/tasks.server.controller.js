@@ -89,7 +89,7 @@ exports.update = function (req, res) {
                  taskRuleValidation: req.body.taskRuleValidation,
                  isFinished: req.body.isFinished,
                  users: req.body.users,
-                 phase: req.body.phaseId,
+                 phaseId: req.body.phaseId,
                  position: req.body.position
     };
 
