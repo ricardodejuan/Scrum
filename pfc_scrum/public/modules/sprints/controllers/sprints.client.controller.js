@@ -6,7 +6,7 @@
 
 var sprintsApp = angular.module('sprints');
 
-sprintsApp.controller('SprintsCreateController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
+sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
     function ($scope, $stateParams, Authentication, Sprints, $http, $location) {
 
         $scope.authentication = Authentication;
@@ -72,6 +72,16 @@ sprintsApp.controller('SprintsCreateController', ['$scope', '$stateParams', 'Aut
 
         $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
         $scope.format = $scope.formats[0];
+
+        $scope.update = function(updatedSprint) {
+            var sprint = updatedSprint;
+
+            sprint.$update({ sprintId: updatedSprint._id }, function(response) {
+
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
     }
 ]);
 
@@ -91,7 +101,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
         $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
 
-        $scope.tasks = new Array();
+        $scope.tasks = [];
 
         $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
             $scope.stories = result.data;
@@ -114,7 +124,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         $scope.createPhase = function (phaseName) {
             var p = new Phases({
                 phaseName: phaseName,
-                position: $scope.phases.length + 1
+                position: $scope.phases.length
             });
 
             p.$save({ sprintId: $stateParams.sprintId }, function (phase) {
@@ -127,10 +137,12 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             phase.$remove({ sprintId: $stateParams.sprintId, phaseId: phase._id });
         };
 
-        $scope.existTasks = function (id) {
+        $scope.existTasks = function (phase) {
+            if (phase.position === 0) return true;
+
             var exist = false;
             angular.forEach($scope.tasks, function (task) {
-                if (task.phaseId === id) {
+                if (task.phaseId === phase._id) {
                     exist = true;
                 }
             });
@@ -150,6 +162,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         
         $scope.movePB = function (story) {
             $scope.handleDeletedStory(story._id);
+            $scope.handleDeletedTask(story._id);
             $http.put('/projects/' + $stateParams.projectId + '/stories/' + story._id + '/productBacklog');
         };
 
@@ -162,6 +175,17 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
 
             $scope.stories = newStories;
+        };
+
+        $scope.handleDeletedTask = function(id) {
+            var oldTasks = $scope.tasks,
+                newTasks = [];
+
+            angular.forEach(oldTasks, function(task) {
+                if(task.storyId !== id) newTasks.push(task);
+            });
+
+            $scope.tasks = newTasks;
         };
 
         $scope.viewStory = function (size, selectedStory) {
@@ -233,6 +257,37 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             $scope.tasks.splice(ndx, 1);
 
             this.toggler = {};
+        };
+        
+        $scope.editSprint = function (size, selectedSprint) {
+            var modalInstance = $modal.open({
+                templateUrl: 'modules/sprints/views/edit-sprint.client.view.html',
+                controller: function ($scope, $modalInstance, sprint) {
+                    $scope.sprint = sprint;
+
+                    $scope.ok = function () {
+                        //if (updateProjectForm.$valid) {
+                        $modalInstance.close($scope.sprint);
+                        //}
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            }, function () {
+                $log.info('Modal dismissed at: ' + new Date());
+            });
         };
 
     }

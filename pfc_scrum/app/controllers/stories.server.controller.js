@@ -10,6 +10,7 @@ var mongoose = require('mongoose'),
     errorHandler = require('./errors.server.controller'),
     Story = mongoose.model('Story'),
     Project = mongoose.model('Project'),
+    Task = mongoose.model('Task'),
     _ = require('lodash'),
     ObjectId = mongoose.Types.ObjectId;
 
@@ -129,11 +130,11 @@ exports.delete = function (req, res) {
 
 
 /*
- * Sprint Backlog
+ * Sprint Backlog. Send US to Sprint Backlog
  */
 exports.backlog = function (req, res) {
     var data = req.body.story;
-    var query = { _id: data._id , projectId: req.params.projectId  };
+    var query = { _id: data._id };
     var doc = { $set: { sprintId: req.body.sprintId } };
     var multi = { multi: true };
 
@@ -143,7 +144,7 @@ exports.backlog = function (req, res) {
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
-            res.send({message: 'User stories have been added.'});
+            res.send({message: 'User story has been added to Sprint Backlog.'});
         }
     });
 
@@ -154,7 +155,7 @@ exports.backlog = function (req, res) {
  */
 exports.productBacklog = function (req, res) {
     var query = { _id: req.params.storyId };
-    var doc = { $unset: { sprintId: '' } };
+    var doc = { $unset: { sprintId: 1 } };
 
     Story.update(query, doc).exec(function (err) {
         if (err) {
@@ -162,6 +163,11 @@ exports.productBacklog = function (req, res) {
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
+            var q = { storyId: req.params.storyId };
+            var d = { $unset: { phaseId: 1 } };
+            var m = { multi: true };
+
+            Task.update(q, d, m).exec();
             res.send({message: 'User stories have been removed from Sprint Backlog.'});
         }
     });

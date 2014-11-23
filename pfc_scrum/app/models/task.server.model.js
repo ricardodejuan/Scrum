@@ -62,7 +62,8 @@ var TaskSchema = new Schema({
         ref: 'Phase'
     },
     position: {
-        type: Number
+        type: Number,
+        default: 0
     }
 
 });

@@ -11,6 +11,7 @@ var mongoose = require('mongoose'),
     Sprint = mongoose.model('Sprint'),
     Project = mongoose.model('Project'),
     Story = mongoose.model('Story'),
+    Phase = mongoose.model('Phase'),
     _ = require('lodash');
 
 
@@ -32,6 +33,13 @@ exports.create = function(req, res) {
                 message: errorHandler.getErrorMessage(err)
             });
         } else {
+            var phase = new Phase({
+                phaseName: 'Tasks',
+                position: 0,
+                sprintId: doc._id
+            });
+
+            phase.save();
             res.status(201).jsonp(doc);
         }
     });

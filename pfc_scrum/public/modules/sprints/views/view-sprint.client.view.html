@@ -1,5 +1,13 @@
 <section data-ng-controller="SprintsViewController">
 
+    <div class="sprint">
+        <h3>
+            <a href="" ng-click="editSprint('', sprint)">
+                {{sprint.sprintName}}
+            </a>
+        </h3>
+    </div>
+
     <div class="page-content-wrapper">
         <!-- Sprint Backlog -->
         <div class="phase phase-size">
@@ -25,11 +33,11 @@
             <div class="panel panel-default" data-drop="true" jqyoui-droppable="{onDrop: 'toggleState(phase)'}" ng-model="toggler">
                 <h3 class="panel-heading panel-title">
                     {{phase.phaseName}}
-                    <button type="button" ng-hide="existTasks(phase._id)" class="close pull-right" ng-click="deletePhase(phase)"><span class="btn-xs glyphicon glyphicon-remove"></span></button>
+                    <button type="button" ng-hide="existTasks(phase)" class="close pull-right" ng-click="deletePhase(phase)"><span class="btn-xs glyphicon glyphicon-remove"></span></button>
                 </h3>
                 <div class="panel-body">
                     <ul class="list-group no-bot-padding">
-                        <li class="list-group-item" ng-repeat="task in tasks | filter: {phaseId: phase._id, task: search}" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task">
+                        <li class="list-group-item" ng-repeat="task in tasks | orderBy: 'position'" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task" ng-if="task.phaseId == phase._id || (task.phaseId == undefined && task.position == phase.position)">
                             <h5>
                                 {{task.taskName}}
                                 <span class="pull-right">
