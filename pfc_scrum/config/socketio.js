@@ -49,8 +49,16 @@ module.exports = function (app) {
             socket.join(room);
         });
 
+        socket.on('sprint.updated', function (data) {
+            socket.broadcast.to(data.room).emit('on.sprint.updated', data.sprint);
+        });
+
         socket.on('phase.created', function (data) {
             socket.broadcast.to(data.room).emit('on.phase.created', data.phase);
+        });
+
+        socket.on('phase.updated', function (data) {
+            socket.broadcast.to(data.room).emit('on.phase.updated', data.phase);
         });
 
         socket.on('phase.deleted', function (data) {

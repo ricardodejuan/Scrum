@@ -32,7 +32,7 @@
         <div class="phase phase-size" ng-repeat="phase in phases | orderBy: 'position'">
             <div class="panel panel-default" data-drop="true" jqyoui-droppable="{onDrop: 'toggleState(phase)'}" ng-model="toggler">
                 <h3 class="panel-heading panel-title">
-                    {{phase.phaseName}}
+                    <a href="" editable-text="phase.phaseName" onaftersave="editPhase(phase)">{{phase.phaseName}}</a>
                     <button type="button" ng-hide="existTasks(phase)" class="close pull-right" ng-click="deletePhase(phase)"><span class="btn-xs glyphicon glyphicon-remove"></span></button>
                 </h3>
                 <div class="panel-body">

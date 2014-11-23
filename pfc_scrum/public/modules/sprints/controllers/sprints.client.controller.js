@@ -6,8 +6,8 @@
 
 var sprintsApp = angular.module('sprints');
 
-sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
-    function ($scope, $stateParams, Authentication, Sprints, $http, $location) {
+sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location', 'SocketSprint',
+    function ($scope, $stateParams, Authentication, Sprints, $http, $location, SocketSprint) {
 
         $scope.authentication = Authentication;
 
@@ -77,7 +77,7 @@ sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams'
             var sprint = updatedSprint;
 
             sprint.$update({ sprintId: updatedSprint._id }, function(response) {
-
+                SocketSprint.emit('sprint.updated', {sprint: response, room: $stateParams.sprintId});
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.message;
             });
@@ -219,6 +219,18 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             $scope.tasks = newTasks;
         };
 
+        $scope.handleUpdatedPhase = function (data) {
+            var oldPhases = $scope.phases,
+                newPhases = [];
+
+            angular.forEach(oldPhases, function(phase) {
+                if(phase._id === data._id) phase.phaseName = data.phaseName;
+
+                newPhases.push(phase);
+            });
+
+            $scope.phases = newPhases;
+        };
 
         // Modals
 
@@ -309,11 +321,20 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.editPhase = function (phase) {
+            phase.$update({ phaseId: phase._id } ,function (response) {
+                SocketSprint.emit('phase.updated', {phase: response, room: $stateParams.sprintId});
+            });
+        };
 
         // Sockets
 
         SocketSprint.on('on.phase.created', function(phase) {
             $scope.phases.push( new Phases(phase) );
+        });
+
+        SocketSprint.on('on.phase.updated', function(phase) {
+            $scope.handleUpdatedPhase(phase);
         });
 
         SocketSprint.on('on.phase.deleted', function(phase) {
@@ -330,6 +351,10 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
         SocketSprint.on('on.task.moved', function(task) {
             $scope.handleMovedTask(task);
+        });
+
+        SocketSprint.on('on.sprint.updated', function(sprint) {
+            $scope.sprint = sprint;
         });
 
     }
