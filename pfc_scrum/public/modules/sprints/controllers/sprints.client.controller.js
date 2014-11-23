@@ -86,8 +86,8 @@ sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams'
 ]);
 
 
-sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location', '$modal', '$log',
-    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location, $modal, $log) {
+sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', '$http', '$location', '$modal', 'SocketSprint', '$log',
+    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, $http, $location, $modal, SocketSprint, $log) {
 
         $scope.authentication = Authentication;
 
@@ -98,6 +98,9 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             projectId: $stateParams.projectId,
             sprintId: $stateParams.sprintId
         });
+
+        // Enter in a room
+        SocketSprint.emit('sprint.room', $stateParams.sprintId);
 
         $scope.phases = Phases.query({ sprintId: $stateParams.sprintId });
 
@@ -129,11 +132,13 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             p.$save({ sprintId: $stateParams.sprintId }, function (phase) {
                 $scope.phases.push(phase);
+                SocketSprint.emit('phase.created', {phase: phase, room: $stateParams.sprintId});
             });
         };
         
         $scope.deletePhase = function (phase) {
             $scope.handleDeletedPhase(phase._id);
+            SocketSprint.emit('phase.deleted', {id: phase._id, room: $stateParams.sprintId});
             phase.$remove({ sprintId: $stateParams.sprintId, phaseId: phase._id });
         };
 
@@ -148,7 +153,39 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
             return exist;
         };
+        
+        $scope.movePB = function (story) {
+            $scope.handleDeletedStory(story._id);
+            SocketSprint.emit('story.returned', {id: story._id, room: $stateParams.sprintId});
+            $scope.handleDeletedTask(story._id);
+            SocketSprint.emit('task.returned', {id: story._id, room: $stateParams.sprintId});
+            $http.put('/projects/' + $stateParams.projectId + '/stories/' + story._id + '/productBacklog');
+        };
 
+        this.toggler = {};
+
+        $scope.toggleState = function(event, ui, phase) {
+            this.toggler.phaseId = phase._id;
+
+            var task = new Tasks(this.toggler);
+            task.$update({ storyId: task.storyId, taskId: task._id });
+
+            SocketSprint.emit('task.moved', {task: this.toggler, room: $stateParams.sprintId});
+
+            $scope.handleMovedTask(this.toggler);
+        };
+
+
+        // Handlers to delete Phases, Tasks, Stories
+
+        $scope.handleMovedTask = function (task) {
+            var ndx = $scope.tasks.map(function(t) {return t.taskName;}).indexOf(task.taskName);
+            $scope.tasks.push(task);
+            $scope.tasks.splice(ndx, 1);
+
+            this.toggler = {};
+        };
+        
         $scope.handleDeletedPhase = function(id) {
             var oldPhases = $scope.phases,
                 newPhases = [];
@@ -158,12 +195,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
 
             $scope.phases = newPhases;
-        };
-        
-        $scope.movePB = function (story) {
-            $scope.handleDeletedStory(story._id);
-            $scope.handleDeletedTask(story._id);
-            $http.put('/projects/' + $stateParams.projectId + '/stories/' + story._id + '/productBacklog');
         };
 
         $scope.handleDeletedStory = function(id) {
@@ -187,6 +218,9 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             $scope.tasks = newTasks;
         };
+
+
+        // Modals
 
         $scope.viewStory = function (size, selectedStory) {
 
@@ -243,21 +277,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 }
             });
         };
-
-        this.toggler = {};
-
-        $scope.toggleState = function(event, ui, phase) {
-            this.toggler.phaseId = phase._id;
-
-            var task = new Tasks(this.toggler);
-            task.$update({ storyId: task.storyId, taskId: task._id });
-
-            var ndx = $scope.tasks.map(function(t) {return t.taskName;}).indexOf(this.toggler.taskName);
-            $scope.tasks.push(this.toggler);
-            $scope.tasks.splice(ndx, 1);
-
-            this.toggler = {};
-        };
         
         $scope.editSprint = function (size, selectedSprint) {
             var modalInstance = $modal.open({
@@ -289,6 +308,29 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $log.info('Modal dismissed at: ' + new Date());
             });
         };
+
+
+        // Sockets
+
+        SocketSprint.on('on.phase.created', function(phase) {
+            $scope.phases.push( new Phases(phase) );
+        });
+
+        SocketSprint.on('on.phase.deleted', function(phase) {
+            $scope.handleDeletedPhase(phase.id);
+        });
+
+        SocketSprint.on('on.story.returned', function(story) {
+            $scope.handleDeletedStory(story.id);
+        });
+
+        SocketSprint.on('on.task.returned', function(task) {
+            $scope.handleDeletedTask(task.id);
+        });
+
+        SocketSprint.on('on.task.moved', function(task) {
+            $scope.handleMovedTask(task);
+        });
 
     }
 ]);

@@ -16,9 +16,9 @@ module.exports = function (app) {
     app.set('socketio', io);
     app.set('server', server);
 
-    // Socket.io NameSpace
-    var nsp = io.of('/stories');
-    nsp.on('connection', function (socket) {
+    // Socket.io NameSpace Stories
+    var nspStories = io.of('/stories');
+    nspStories.on('connection', function (socket) {
 
         socket.on('story.room', function (room) {
             socket.join(room);
@@ -41,4 +41,32 @@ module.exports = function (app) {
         });
     });
 
+    // Socket.io NameSpace Sprints
+    var nspSprints = io.of('/sprints');
+    nspSprints.on('connection', function (socket) {
+
+        socket.on('sprint.room', function (room) {
+            socket.join(room);
+        });
+
+        socket.on('phase.created', function (data) {
+            socket.broadcast.to(data.room).emit('on.phase.created', data.phase);
+        });
+
+        socket.on('phase.deleted', function (data) {
+            socket.broadcast.to(data.room).emit('on.phase.deleted', data);
+        });
+
+        socket.on('story.returned', function (data) {
+            socket.broadcast.to(data.room).emit('on.story.returned', data);
+        });
+
+        socket.on('task.returned', function (data) {
+            socket.broadcast.to(data.room).emit('on.task.returned', data);
+        });
+
+        socket.on('task.moved', function (data) {
+            socket.broadcast.to(data.room).emit('on.task.moved', data.task);
+        });
+    });
 };
