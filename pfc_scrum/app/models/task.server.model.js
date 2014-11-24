@@ -44,7 +44,7 @@ var TaskSchema = new Schema({
         type: String,
         trim: true
     },
-    isFinished: {
+    taskFinished: {
         type: Boolean,
         default: false
     },

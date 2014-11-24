@@ -129,9 +129,9 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             }
         });
 
-        $scope.createPhase = function (phaseName) {
+        $scope.createPhase = function () {
             var p = new Phases({
-                phaseName: phaseName,
+                phaseName: this.phaseName,
                 position: $scope.phases.length
             });
 
@@ -171,6 +171,11 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         // Move Tasks
         $scope.toggleState = function(event, ui, phase) {
             this.toggler.phaseId = phase._id;
+
+            var length = $scope.phases.length - 1;
+            if (phase._id === $scope.phases[length]._id)
+                this.toggler.taskFinished = true;
+            else this.toggler.taskFinished = false;
 
             var task = new Tasks(this.toggler);
             task.$update({ storyId: task.storyId, taskId: task._id });
