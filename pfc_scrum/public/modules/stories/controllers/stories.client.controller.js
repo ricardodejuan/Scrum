@@ -6,12 +6,12 @@
 
 var storiesApp = angular.module('stories');
 
-storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $stateParams) {
+storiesApp.directive('stickyNote', ['SocketPB', '$stateParams', function(SocketPB, $stateParams) {
     var linker = function(scope, element, attrs) {
         element.draggable({
             containment: '.containment-wrapper',
             stop: function(event, ui) {
-                Socket.emit('story.moved', {
+                SocketPB.emit('story.moved', {
                     id: scope.story._id,
                     x: ui.position.left,
                     y: ui.position.top,
@@ -23,7 +23,7 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
             }
         });
 
-        Socket.on('on.story.moved', function(story) {
+        SocketPB.on('on.story.moved', function(story) {
             // Update if the same story
             if(story.id === scope.story._id) {
                 element.animate({
@@ -47,7 +47,7 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
 
     var controller = function($scope) {
         // Incoming
-        Socket.on('on.story.updated', function(story) {
+        SocketPB.on('on.story.updated', function(story) {
             // Update if the same story
             if(story._id === $scope.story._id) {
                 $scope.story.storyTitle = story.storyTitle;
@@ -67,8 +67,8 @@ storiesApp.directive('stickyNote', ['Socket', '$stateParams', function(Socket, $
     };
 }]);
 
-storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http', 'Tasks',
-    function($scope, Socket, Stories, Authentication, $location, $stateParams, $modal, $http, Tasks) {
+storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Authentication', '$location', '$stateParams', '$modal', '$http', 'Tasks',
+    function($scope, SocketPB, Stories, Authentication, $location, $stateParams, $modal, $http, Tasks) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -77,14 +77,14 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
         $scope.stories = Stories.query({ projectId: $stateParams.projectId });
 
         // Enter in a room
-        Socket.emit('story.room', $stateParams.projectId);
+        SocketPB.emit('story.room', $stateParams.projectId);
 
         // Incoming
-        Socket.on('on.story.created', function(story) {
+        SocketPB.on('on.story.created', function(story) {
             $scope.stories.push( new Stories(story) );
         });
 
-        Socket.on('on.story.deleted', function(story) {
+        SocketPB.on('on.story.deleted', function(story) {
             $scope.handleDeletedStory(story.id);
         });
 
@@ -101,13 +101,13 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
             s.$save({ projectId: $stateParams.projectId }, function (story) {
                 $scope.stories.push(story);
-                Socket.emit('story.created', {story: story, room: $stateParams.projectId});
+                SocketPB.emit('story.created', {story: story, room: $stateParams.projectId});
             });
         };
 
         $scope.deleteStory = function(story) {
             $scope.handleDeletedStory(story._id);
-            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
+            SocketPB.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
             story.$remove({ projectId: $stateParams.projectId, storyId: story._id });
         };
 
@@ -125,7 +125,7 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
         // Outgoing
         $scope.updateStory = function(story) {
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
+            SocketPB.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
 
         $scope.editStory = function (size, selectedStory) {
@@ -136,7 +136,7 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                     $scope.story = story;
 
                     $scope.ok = function () {
-                        Socket.emit('story.updated', {story: $scope.story, room: $stateParams.projectId});
+                        SocketPB.emit('story.updated', {story: $scope.story, room: $stateParams.projectId});
                         $modalInstance.close($scope.story);
                     };
 
@@ -168,7 +168,7 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                     $scope.move = function (sprint) {
                         $http.put('/projects/' + $stateParams.projectId + '/storiesBacklog', {'story': story, 'sprintId': sprint._id}).success(function(response) {
                             moveStory(story._id);
-                            Socket.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
+                            SocketPB.emit('story.deleted', {id: story._id, room: $stateParams.projectId});
                             $modalInstance.close(story);
                         });
                     };
