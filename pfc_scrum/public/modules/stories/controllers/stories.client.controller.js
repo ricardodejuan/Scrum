@@ -130,12 +130,13 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
 
         $scope.editStory = function (size, selectedStory) {
 
-            var modalInstance = $modal.open({
+            $modal.open({
                 templateUrl: 'modules/stories/views/edit-story.client.view.html',
                 controller: function ($scope, $modalInstance, story) {
                     $scope.story = story;
 
                     $scope.ok = function () {
+                        Socket.emit('story.updated', {story: $scope.story, room: $stateParams.projectId});
                         $modalInstance.close($scope.story);
                     };
 
@@ -149,10 +150,6 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                         return selectedStory;
                     }
                 }
-            });
-
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
             });
         };
         
@@ -193,37 +190,11 @@ storiesApp.controller('StoriesController', ['$scope', 'Socket', 'Stories', 'Auth
                 }
             });
         };
-        
-        $scope.addTasks = function (size, selectedStory) {
-            $modal.open({
-                templateUrl: 'modules/tasks/views/tasks.client.view.html',
-                controller: function ($scope, $modalInstance, story) {
-
-                    $scope.story = story;
-
-                    $scope.tasks = Tasks.query({ storyId: story._id });
-
-                    $scope.move = function () {
-                        $modalInstance.close(story);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                    };
-                },
-                size: size,
-                resolve: {
-                    story: function () {
-                        return selectedStory;
-                    }
-                }
-            });
-        };
     }
 ]);
 
-storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location', 'Socket',
-    function ($scope, $stateParams, Authentication, $location, Socket) {
+storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location',
+    function ($scope, $stateParams, Authentication, $location) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -239,7 +210,6 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
         $scope.update = function (updatedStory) {
             var story = updatedStory;
             story.$update({ storyId: story._id });
-            Socket.emit('story.updated', {story: story, room: $stateParams.projectId});
         };
     }
 ]);

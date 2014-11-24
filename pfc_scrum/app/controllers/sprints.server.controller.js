@@ -35,7 +35,7 @@ exports.create = function(req, res) {
         } else {
             var phase = new Phase({
                 phaseName: 'Tasks',
-                position: 0,
+                position: -1,
                 sprintId: doc._id
             });
 

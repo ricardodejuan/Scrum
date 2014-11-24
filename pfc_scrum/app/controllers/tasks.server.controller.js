@@ -24,7 +24,6 @@ exports.create = function(req, res) {
                  taskRemark: req.body.taskRemark,
                  taskRuleValidation: req.body.taskRuleValidation,
                  storyId: req.params.storyId,
-                 users: req.body.users,
                  phase: req.body.phaseId,
                  position: req.body.position
     };
@@ -88,7 +87,6 @@ exports.update = function (req, res) {
                  taskRemark: req.body.taskRemark,
                  taskRuleValidation: req.body.taskRuleValidation,
                  isFinished: req.body.isFinished,
-                 users: req.body.users,
                  phaseId: req.body.phaseId,
                  position: req.body.position
     };

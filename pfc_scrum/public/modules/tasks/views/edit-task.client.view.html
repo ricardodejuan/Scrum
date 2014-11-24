@@ -1,0 +1,57 @@
+<section data-ng-controller="TasksCreateUpdateController" xmlns="http://www.w3.org/1999/html">
+
+    <div class="modal-header">
+        <h3 class="modal-title">Task</h3>
+    </div>
+
+    <div class="modal-body">
+        <form name="updateTaskForm">
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label" for="taskName">Title</label>
+                            <div class="controls">
+                                <input name="taskName" type="text" data-ng-model="task.taskName" id="taskName" class="form-control" placeholder="Title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskDescription">Description</label>
+                            <div class="controls">
+                                <textarea name="taskDescription" data-ng-model="task.taskDescription" id="taskDescription" class="form-control" cols="30" rows="4" placeholder="Description"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPriority">Priority</label>
+                            <div class="controls">
+                                <select data-ng-model="task.taskPriority" ng-options="priority for priority in priorities" id="taskPriority" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskPoints">Task Points: </label>
+                            <div class="controls">
+                                <input name="input" type="number" data-ng-model="task.taskPoints" id="taskPoints" class="form-control" min="0" max="100" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRemark">Task Remarks: </label>
+                            <div class="controls">
+                                <textarea name="taskRemark" data-ng-model="task.taskRemark" id="taskRemark" class="form-control" cols="30" rows="4" placeholder="Remarks"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="taskRuleValidation">Task Validations: </label>
+                            <div class="controls">
+                                <textarea name="taskRuleValidation" data-ng-model="task.taskRuleValidation" id="taskRuleValidation" class="form-control" cols="30" rows="4" placeholder="Rule validations"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="updateTask(task); ok()" ng-disabled="updateTaskForm.$invalid">Update</button>
+        <button class="btn btn-warning" ng-click="cancel()">Close</button>
+    </div>
+</section>

@@ -26,6 +26,7 @@ exports.create = function(req, res) {
                  storyPriority: req.body.storyPriority,
                  storyPosX: req.body.storyPosX,
                  storyPosY: req.body.storyPosY,
+                 users: req.body.users,
                  projectId: req.params.projectId
                };
     var story = new Story(data);
@@ -87,7 +88,8 @@ exports.update = function (req, res) {
                  storyPoint: req.body.storyPoint,
                  storyPriority: req.body.storyPriority,
                  storyPosX: req.body.storyPosX,
-                 storyPosY: req.body.storyPosY
+                 storyPosY: req.body.storyPosY,
+                 users: req.body.users
     };
 
     Story.findOne(query).exec(function (err, story) {

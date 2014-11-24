@@ -49,10 +49,14 @@ module.exports = function (app) {
             socket.join(room);
         });
 
+
+        //Sprint
         socket.on('sprint.updated', function (data) {
             socket.broadcast.to(data.room).emit('on.sprint.updated', data.sprint);
         });
 
+
+        //Phases
         socket.on('phase.created', function (data) {
             socket.broadcast.to(data.room).emit('on.phase.created', data.phase);
         });
@@ -65,8 +69,24 @@ module.exports = function (app) {
             socket.broadcast.to(data.room).emit('on.phase.deleted', data);
         });
 
+
+        //Stories
+        socket.on('story.updated', function (data) {
+            socket.broadcast.to(data.room).emit('on.story.updated', data.story);
+        });
+
         socket.on('story.returned', function (data) {
             socket.broadcast.to(data.room).emit('on.story.returned', data);
+        });
+
+
+        //Tasks
+        socket.on('task.created', function (data) {
+            nspSprints.to(data.room).emit('on.task.created', data.task);
+        });
+
+        socket.on('task.updated', function (data) {
+            socket.broadcast.to(data.room).emit('on.task.updated', data.task);
         });
 
         socket.on('task.returned', function (data) {
@@ -75,6 +95,10 @@ module.exports = function (app) {
 
         socket.on('task.moved', function (data) {
             socket.broadcast.to(data.room).emit('on.task.moved', data.task);
+        });
+
+        socket.on('task.deleted', function (data) {
+            socket.broadcast.to(data.room).emit('on.task.deleted', data);
         });
     });
 };

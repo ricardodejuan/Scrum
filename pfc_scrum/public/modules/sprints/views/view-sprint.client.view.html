@@ -19,7 +19,8 @@
                             <h5>
                                 {{story.storyTitle}}
                                 <span class="pull-right">
-                                    <button type="button" class="close" ng-click="viewStory('', story)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                    <button type="button" class="close" ng-click="editStory('', story)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                    <button type="button" class="close" ng-click="addTask('', story)"><span class="btn-xs glyphicon glyphicon-plus"/></button>
                                     <button type="button" class="close" ng-click="movePB(story)"><span class="btn-xs glyphicon glyphicon-arrow-left"/></button>
                                 </span>
                             </h5>
@@ -37,11 +38,12 @@
                 </h3>
                 <div class="panel-body">
                     <ul class="list-group no-bot-padding">
-                        <li class="list-group-item" ng-repeat="task in tasks | orderBy: 'position'" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task" ng-if="task.phaseId == phase._id || (task.phaseId == undefined && task.position == phase.position)">
+                        <li class="list-group-item" ng-repeat="task in tasks | orderBy: 'position'" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task" ng-if="task.phaseId == phase._id || (task.phaseId == undefined && phase.position == -1)">
                             <h5>
                                 {{task.taskName}}
                                 <span class="pull-right">
-                                    <button type="button" class="close" ng-click="viewTask('', task)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                    <button type="button" class="close" ng-click="editTask('', task)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                    <button type="button" class="close" ng-click="deleteTask(task)"><span class="btn-xs glyphicon glyphicon-remove"/></button>
                                 </span>
                             </h5>
                         </li>

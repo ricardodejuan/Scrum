@@ -51,6 +51,10 @@ var StorySchema = new Schema({
         type: Number,
         required: true
     },
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     projectId: {
         type: Schema.Types.ObjectId,
         ref: 'Project',

@@ -53,10 +53,6 @@ var TaskSchema = new Schema({
         ref: 'Story',
         required: true
     },
-    users: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }],
     phaseId: {
         type: Schema.Types.ObjectId,
         ref: 'Phase'
