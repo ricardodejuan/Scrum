@@ -47,7 +47,7 @@ exports.create = function(req, res) {
 exports.list = function(req, res) {
     var query = { 'storyId': req.params.storyId };
 
-    Task.find(query).populate('storyId', 'storyTitle').exec(function(err, tasks) {
+    Task.find(query).exec(function(err, tasks) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
@@ -86,7 +86,7 @@ exports.update = function (req, res) {
                  taskPoints: req.body.taskPoints,
                  taskRemark: req.body.taskRemark,
                  taskRuleValidation: req.body.taskRuleValidation,
-                taskFinished: req.body.taskFinished,
+                 taskFinished: req.body.taskFinished,
                  phaseId: req.body.phaseId,
                  position: req.body.position
     };

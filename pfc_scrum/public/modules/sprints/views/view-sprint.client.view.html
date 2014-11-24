@@ -40,7 +40,7 @@
                     <ul class="list-group no-bot-padding">
                         <li class="list-group-item" ng-repeat="task in tasks | orderBy: 'position'" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task" ng-if="task.phaseId == phase._id || (task.phaseId == undefined && phase.position == -1)">
                             <h5>
-                                {{task.taskName}}</br><span class="btn-warning">{{task.storyId.storyTitle}}</span>
+                                {{task.taskName}}
                                 <span class="pull-right">
                                     <span ng-show="task.taskFinished" class="btn-xs btn-success glyphicon glyphicon-ok"/>
                                 </span>
