@@ -90,6 +90,8 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
     function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, Stories, $http, $location, $modal, SocketSprint, $log) {
 
         $scope.authentication = Authentication;
+        $scope.projectId = $stateParams.projectId;
+        $scope.dailyScrum = false;
 
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');

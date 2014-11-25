@@ -31,6 +31,14 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject.viewSprint', {
                 url: '/sprints/:sprintId',
                 templateUrl: 'modules/sprints/views/view-sprint.client.view.html'
+            }).
+            state('viewProject.viewSprint.listDailies', {
+                url: '/dailies',
+                views: {
+                    'dailies': {
+                        templateUrl: 'modules/dailies/views/list-dailies.client.view.html'
+                    }
+                }
             });
     }
 ]);

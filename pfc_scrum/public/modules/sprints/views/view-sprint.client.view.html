@@ -1,20 +1,23 @@
 <section data-ng-controller="SprintsViewController">
-
     <div class="sprint">
         <h3>
-            <a href="" ng-click="editSprint('', sprint)">
-                {{sprint.sprintName}}
-            </a>
-            <a href="#" data-toggle="dropdown">Meetings<span class="caret"></span></a>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="" ng-click="">DailyScrum</a></li>
-                <li><a href="" ng-click="sprintReview('', sprint, stories)">Sprint Review</a></li>
-                <li><a href="" ng-click="sprintRestrospective('', sprint)">Sprint Retrospective</a></li>
-            </ul>
+            <div>
+                <a href="" ng-click="editSprint('', sprint)" class="btn-danger">
+                    {{sprint.sprintName}}
+                </a>
+            </div>
+            <div class="sprint-meetings">
+                <button href="" data-toggle="dropdown" class="btn btn-info">Meetings<span class="caret"></span></button>
+                <ul class="dropdown-menu menu-left" role="menu">
+                    <li><a href="" ng-click="dailyScrum = true" ui-sref=".listDailies({ projectId: projectId, sprintId: sprint._id })">DailyScrum</a></li>
+                    <li><a href="" ng-click="sprintReview('', sprint, stories)">Sprint Review</a></li>
+                    <li><a href="" ng-click="sprintRestrospective('', sprint)">Sprint Retrospective</a></li>
+                </ul>
+            </div>
         </h3>
     </div>
 
-    <div class="page-content-wrapper">
+    <div class="page-content-wrapper" ng-hide="dailyScrum == true">
         <!-- Sprint Backlog -->
         <div class="phase phase-size">
             <div class="panel panel-default" data-drop="true" ng-model="toggler">
@@ -73,6 +76,8 @@
                 </div>
             </div>
         </div>
-
+    </div>
+    <div ui-view="dailies" ng-show="dailyScrum">
     </div>
 </section>
+

@@ -58,6 +58,13 @@ angular.element(document).ready(function() {
 // Use Applicaion configuration module to register a new module
 ApplicationConfiguration.registerModule('core');
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/25/14.
+ */
+'use strict';
+
+// Use Application configuration module to register a new module
+ApplicationConfiguration.registerModule('dailies');
+/**
  * Created by J. Ricardo de Juan Cajide on 11/17/14.
  */
 'use strict';
@@ -322,6 +329,122 @@ angular.module('core').service('Menus', [
     }
 ]);
 /**
+ * Created by J. Ricardo de Juan Cajide on 11/25/14.
+ */
+'use strict';
+
+
+var dailiesApp = angular.module('dailies');
+
+dailiesApp.controller('DailyScrumController', ['$scope', '$stateParams', 'Authentication', '$location', 'Dailies', '$modal',
+    function ($scope, $stateParams, Authentication, $location, Dailies, $modal) {
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.dailyScrum = true;
+
+        $scope.dailies = Dailies.query({ sprintId: $stateParams.sprintId});
+
+        $scope.createDaily = function () {
+            var ds = new Dailies({
+                did: '',
+                willDo: '',
+                impediments: '',
+                date: new Date(),
+                sprintId: $stateParams.sprintId
+            });
+
+            ds.$save({ sprintId: $stateParams.sprintId }, function(daily) {
+                $scope.dailies.push(daily);
+            });
+        };
+
+        $scope.editDaily = function (size, selectedDaily) {
+            $modal.open({
+                templateUrl: 'modules/dailies/views/view-daily.client.view.html',
+                controller: ["$scope", "$modalInstance", "daily", function ($scope, $modalInstance, daily) {
+
+                    $scope.daily = daily;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.daily);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+
+                }],
+                size: size,
+                resolve: {
+                    daily: function () {
+                        return selectedDaily;
+                    }
+                }
+            });
+        };
+    }
+]);
+
+dailiesApp.controller('DailyScrumUpdateController', ['$scope', '$stateParams', 'Authentication', '$location', 'Dailies',
+    function ($scope, $stateParams, Authentication, $location, Dailies) {
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.today = function() {
+            $scope.startTime = new Date();
+        };
+
+        $scope.clear = function () {
+            $scope.startTime = null;
+        };
+
+        $scope.openStartDT = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+
+            $scope.openedStartDT = true;
+        };
+
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+
+        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+        $scope.format = $scope.formats[0];
+
+        $scope.update = function(updatedDaily) {
+            var daily = updatedDaily;
+
+            daily.$update({ sprintId: $stateParams.sprintId, dailyId: daily._id } ,function(response) {
+
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.message;
+            });
+        };
+    }
+]);
+/**
+ * Created by J. Ricardo de Juan Cajide on 11/25/14.
+ */
+'use strict';
+
+//Dailies service used for communicating with the projects REST endpoints
+angular.module('dailies').factory('Dailies', ['$resource',
+    function($resource) {
+        return $resource('sprints/:sprintId/dailies/:dailyId', { sprintId: '@sprintId', dailyId: '@dailyId' }, {
+            update: {
+                method: 'PUT'
+            }
+        });
+    }
+]);
+/**
  * Created by J. Ricardo de Juan Cajide on 11/17/14.
  */
 'use strict';
@@ -383,6 +506,14 @@ angular.module('projects').config(['$stateProvider',
             state('viewProject.viewSprint', {
                 url: '/sprints/:sprintId',
                 templateUrl: 'modules/sprints/views/view-sprint.client.view.html'
+            }).
+            state('viewProject.viewSprint.listDailies', {
+                url: '/dailies',
+                views: {
+                    'dailies': {
+                        templateUrl: 'modules/dailies/views/list-dailies.client.view.html'
+                    }
+                }
             });
     }
 ]);
@@ -745,6 +876,8 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
     function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, Stories, $http, $location, $modal, SocketSprint, $log) {
 
         $scope.authentication = Authentication;
+        $scope.projectId = $stateParams.projectId;
+        $scope.dailyScrum = false;
 
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
@@ -1486,77 +1619,6 @@ angular.module('stories').factory('Stories', ['$resource',
 
 var tasksApp = angular.module('tasks');
 
-tasksApp.controller('TasksController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks', '$log',
-    function ($scope, $stateParams, Authentication, $location, Tasks, $log) {
-        $scope.authentication = Authentication;
-
-        // If user is not signed in then redirect back home
-        if (!$scope.authentication.user) $location.path('/');
-
-        $scope.priorities = [
-            'VERY HIGH',
-            'HIGH',
-            'MEDIUM',
-            'LOW',
-            'VERY LOW'
-        ];
-
-        $scope.isTask = true;
-
-        $scope.createTask = function (story) {
-            var t = new Tasks({
-                taskName: this.taskName,
-                taskDescription: this.taskDescription,
-                taskPriority: this.taskPriority,
-                taskPoints: this.taskPoints,
-                taskRemark: this.taskRemark,
-                taskRuleValidation: this.taskRuleValidation
-            });
-            t.$save({ storyId: story._id }, function (task) {
-                $scope.tasks.push(task);
-
-                $scope.taskName = '';
-                $scope.taskDescription = '';
-                $scope.taskPriority = {};
-                $scope.taskPoints = 0;
-                $scope.taskRemark = '';
-                $scope.taskRuleValidation = '';
-            });
-        };
-
-        $scope.deleteTask = function (task, story) {
-            $scope.handleDeletedTask(task._id);
-            task.$remove({ storyId: story._id,  taskId: task._id });
-        };
-
-        $scope.handleDeletedTask = function(id) {
-            var oldTasks = $scope.tasks,
-                newTasks = [];
-
-            angular.forEach(oldTasks, function(task) {
-                if(task._id !== id) newTasks.push(task);
-            });
-
-            $scope.tasks = newTasks;
-        };
-
-        $scope.viewTask = function (task) {
-            $scope.isTask = false;
-            $scope.selectedTask = task;
-        };
-
-        $scope.updateTask = function() {
-            // $scope.selectedTask already updated!
-            $scope.selectedTask.$update({ storyId: $scope.story._id, taskId: $scope.selectedTask._id });
-        };
-
-        $scope.checkTitle = function (data) {
-            if (data.length >20) {
-                return 'Max length is 20';
-            }
-        };
-    }
-]);
 
 tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'Authentication', '$location', 'Tasks', 'SocketSprint',
     function ($scope, $stateParams, Authentication, $location, Tasks, SocketSprint) {

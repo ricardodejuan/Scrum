@@ -1,0 +1,48 @@
+<section data-ng-controller="DailyScrumUpdateController">
+
+    <div class="modal-header">
+        <h3 class="modal-title">Daily Scrum</h3>
+    </div>
+
+    <div class="modal-body">
+        <form name="updateDailyForm">
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label" for="did">What did you do?</label>
+                            <div class="controls">
+                                <textarea name="did" data-ng-model="daily.did" id="did" class="form-control" cols="30" rows="5" placeholder="..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="willDo">What will you do?</label>
+                            <div class="controls">
+                                <textarea name="willDo" data-ng-model="daily.willDo" id="willDo" class="form-control" cols="30" rows="5" placeholder="..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="impediments">Any impediments?</label>
+                            <div class="controls">
+                                <textarea name="impediments" data-ng-model="daily.impediments" id="impediments" class="form-control" cols="30" rows="5" placeholder="..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="date">Date</label>
+                            <p class="input-group">
+                                <input name="date" type="text" id="date" class="form-control" datepicker-popup="{{format}}" data-ng-model="daily.date" is-open="openedStartDT" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openStartDT($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="update(daily); ok()" ng-disabled="updateDailyForm.$invalid">Update</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</section>

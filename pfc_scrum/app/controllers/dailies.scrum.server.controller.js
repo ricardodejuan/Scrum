@@ -43,8 +43,9 @@ exports.create = function(req, res) {
  */
 exports.list = function(req, res) {
     var query = { 'sprintId': req.params.sprintId };
+    var pop = ({ path: 'userId', select: 'username' });
 
-    DailyScrum.find(query).exec(function(err, dailies) {
+    DailyScrum.find(query).populate(pop).exec(function(err, dailies) {
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)

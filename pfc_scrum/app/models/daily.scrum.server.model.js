@@ -13,17 +13,14 @@ var Schema = mongoose.Schema;
 var DailyScrumSchema = new Schema({
     did: {
         type: String,
-        required: true,
         trim: true
     },
     willDo: {
         type: String,
-        required: true,
         trim: true
     },
     impediments: {
         type: String,
-        required: true,
         trim: true
     },
     date: {

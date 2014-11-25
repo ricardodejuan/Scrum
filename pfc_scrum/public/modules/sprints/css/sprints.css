@@ -20,7 +20,18 @@
 }
 
 .sprint {
-    position: absolute;
-    top: 0;
-    right: 27px;
+    position: fixed;
+    top: 6.5%;
+    left: 50%;
+}
+
+.sprint-meetings {
+    position: fixed;
+    top: 9%;
+    right: 2%;
+}
+
+.menu-left {
+    left: -100%;
+    z-index: -1;
 }
