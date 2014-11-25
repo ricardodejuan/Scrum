@@ -25,13 +25,15 @@
                             </p>
                         </div>
                         <div class="form-group">
-                            <div ng-repeat="story in stories">
-                                <div class="col-sm-6 text-center" ng-hide="story.storyFinished">
-                                    <label class="control-label btn-danger">Stories Pending</label>
+                            <div class="col-sm-6 text-center">
+                                <label class="control-label btn-success">Stories Finished</label>
+                                <div ng-repeat="story in stories" ng-show="story.storyFinished">
                                     <p>{{story.storyTitle}}</p>
                                 </div>
-                                <div class="col-sm-6 text-center" ng-show="story.storyFinished">
-                                    <label class="control-label btn-success">Stories Finished</label>
+                            </div>
+                            <div class="col-sm-6 text-center">
+                                <label class="control-label btn-danger">Stories Pending</label>
+                                <div ng-repeat="story in stories" ng-hide="story.storyFinished">
                                     <p>{{story.storyTitle}}</p>
                                 </div>
                             </div>
