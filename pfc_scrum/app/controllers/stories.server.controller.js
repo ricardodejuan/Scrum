@@ -87,6 +87,7 @@ exports.update = function (req, res) {
                  storyValue: req.body.storyValue,
                  storyPoint: req.body.storyPoint,
                  storyPriority: req.body.storyPriority,
+                 storyFinished: req.body.storyFinished,
                  storyPosX: req.body.storyPosX,
                  storyPosY: req.body.storyPosY,
                  users: req.body.users

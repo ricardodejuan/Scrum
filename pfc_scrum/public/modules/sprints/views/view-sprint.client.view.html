@@ -5,6 +5,12 @@
             <a href="" ng-click="editSprint('', sprint)">
                 {{sprint.sprintName}}
             </a>
+            <a href="#" data-toggle="dropdown">Meetings<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="" ng-click="">DailyScrum</a></li>
+                <li><a href="" ng-click="sprintReview('', sprint, stories)">Sprint Review</a></li>
+                <li><a href="" ng-click="sprintRestrospective('', sprint)">Sprint Retrospective</a></li>
+            </ul>
         </h3>
     </div>
 

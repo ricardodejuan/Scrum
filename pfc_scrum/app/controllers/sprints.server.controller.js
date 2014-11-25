@@ -91,7 +91,10 @@ exports.update = function (req, res) {
                  sprintStartTime: req.body.sprintStartTime,
                  sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
-                 sprintFinished: req.body.sprintFinished };
+                 sprintFinished: req.body.sprintFinished,
+                 sprintReviewMeeting: req.body.sprintReviewMeeting,
+                 sprintRetrospectiveMeeting: req.body.sprintRetrospectiveMeeting
+    };
 
     Sprint.findOne(query).exec(function (err, sprint) {
         if (err) {

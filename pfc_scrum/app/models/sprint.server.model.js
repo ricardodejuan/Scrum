@@ -45,6 +45,37 @@ var SprintSchema = new Schema({
     projectId: {
         type: Schema.Types.ObjectId,
         ref: 'Project'
+    },
+    sprintReviewMeeting: {
+        notes: {
+            type: String,
+            trim: true
+        },
+        sprintPlanningDate: {
+            type: Date
+        }
+    },
+    sprintRetrospectiveMeeting: {
+        goodWork: {
+            type: String,
+            trim: true
+        },
+        badWork: {
+            type: String,
+            trim: true
+        },
+        learn: {
+            type: String,
+            trim: true
+        },
+        improve: {
+            type: String,
+            trim: true
+        },
+        problems: {
+            type: String,
+            trim: true
+        }
     }
 });
 

@@ -123,6 +123,6 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.message;
             });
-        }
+        };
     }
 ]);

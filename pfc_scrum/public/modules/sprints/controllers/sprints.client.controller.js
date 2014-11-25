@@ -391,6 +391,57 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.sprintReview = function (size, selectedSprint, setStories) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-review.client.view.html',
+                controller: function ($scope, $modalInstance, sprint, stories) {
+                    $scope.sprint = sprint;
+
+                    $scope.stories = stories;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    },
+                    stories: function () {
+                        return setStories;
+                    }
+                }
+            });
+        };
+
+        $scope.sprintRestrospective = function (size, selectedSprint) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-retrospective.client.view.html',
+                controller: function ($scope, $modalInstance, sprint) {
+                    $scope.sprint = sprint;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    }
+                }
+            });
+        };
+
         // Sockets
 
 

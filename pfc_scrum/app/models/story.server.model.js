@@ -43,6 +43,10 @@ var StorySchema = new Schema({
     storyRuleValidation: [{
         type: String
     }],
+    storyFinished: {
+        type: Boolean,
+        default: false
+    },
     storyPosX: {
         type: Number,
         required: true

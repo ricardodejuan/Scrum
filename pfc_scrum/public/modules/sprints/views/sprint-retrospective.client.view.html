@@ -1,0 +1,51 @@
+<section data-ng-controller="SprintsCreateUpdateController">
+
+    <div class="modal-header">
+        <h3 class="modal-title">Sprint Retrospective</h3>
+    </div>
+
+    <div class="modal-body">
+        <form name="updateSprintForm">
+            <fieldset>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label" for="goodWork">Good work</label>
+                            <div class="controls">
+                                <textarea name="goodWork" data-ng-model="sprint.sprintRetrospectiveMeeting.goodWork" id="goodWork" class="form-control" cols="30" rows="5" placeholder="Good work"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="badWork">Bad work</label>
+                            <div class="controls">
+                                <textarea name="badWork" data-ng-model="sprint.sprintRetrospectiveMeeting.badWork" id="badWork" class="form-control" cols="30" rows="5" placeholder="Bad work"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="learn">Learn</label>
+                            <div class="controls">
+                                <textarea name="learn" data-ng-model="sprint.sprintRetrospectiveMeeting.learn" id="learn" class="form-control" cols="30" rows="5" placeholder="Learn"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="improve">Improve</label>
+                            <div class="controls">
+                                <textarea name="improve" data-ng-model="sprint.sprintRetrospectiveMeeting.improve" id="improve" class="form-control" cols="30" rows="5" placeholder="Improve"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="problems">Problems</label>
+                            <div class="controls">
+                                <textarea name="problems" data-ng-model="sprint.sprintRetrospectiveMeeting.problems" id="problems" class="form-control" cols="30" rows="5" placeholder="Problems"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-info" ng-click="update(sprint); ok()" ng-disabled="updateSprintForm.$invalid">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</section>

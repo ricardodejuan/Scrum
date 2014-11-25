@@ -23,6 +23,7 @@ var DailyScrumSchema = new Schema({
     },
     impediments: {
         type: String,
+        required: true,
         trim: true
     },
     date: {
