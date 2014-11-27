@@ -55,6 +55,15 @@ var ProjectSchema = new Schema({
         },
         _id: false
     }],
+    projectBurnDownChart : [{
+        storyPoints: {
+            type: Number
+        },
+        day: {
+            type: Number
+        },
+        _id: false
+    }],
     productBackLog: {
         risks: [{
             type: String,

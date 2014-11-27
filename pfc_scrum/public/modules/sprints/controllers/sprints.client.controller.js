@@ -526,8 +526,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $modalInstance.close(sprint);
             };
 
-            var daysLabel = [],
-                currentData = [],
+            var currentData = [],
                 estimateData = [],
                 currentStoryPoints = 0,
                 totalStoryPoints = 0,
@@ -540,11 +539,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
             var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
-
-            for(var i = 1; i <= totalDays; i++) {
-                daysLabel.push('Day ' + i);
-            }
-            daysLabel.push('');
 
             angular.forEach(stories, function (story) {
                 if (!story.storyFinished)
@@ -580,81 +574,32 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             if (modified)
                 sprint.$update({ sprintId: sprint._id });
 
-            $scope.data = {
-                labels: daysLabel,
-                datasets: [
-                    {
-                        label: 'Actual',
-                        strokeColor: 'rgba(255,0,0,1)',
-                        pointColor: 'rgba(255,0,0,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(255,0,0,1)',
-                        data: currentData
-                    },
-                    {
-                        label: 'Estimated',
-                        strokeColor: 'rgba(0,175,255,1)',
-                        pointColor: 'rgba(0,175,255,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(0,175,255,1)',
-                        data: estimateData
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
                     }
-                ]
-            };
-
-            // Chart.js Options
-            $scope.options =  {
-
-                // Sets the chart to be responsive
-                responsive: true,
-
-                ///Boolean - Whether grid lines are shown across the chart
-                scaleShowGridLines : true,
-
-                //String - Colour of the grid lines
-                scaleGridLineColor : "rgba(0,0,0,.05)",
-
-                //Number - Width of the grid lines
-                scaleGridLineWidth : 1,
-
-                //Boolean - Whether the line is curved between points
-                bezierCurve : false,
-
-                //Number - Tension of the bezier curve between points
-                bezierCurveTension : 0.4,
-
-                //Boolean - Whether to show a dot for each point
-                pointDot : true,
-
-                //Number - Radius of each point dot in pixels
-                pointDotRadius : 4,
-
-                //Number - Pixel width of point dot stroke
-                pointDotStrokeWidth : 1,
-
-                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-                pointHitDetectionRadius : 20,
-
-                //Boolean - Whether to show a stroke for datasets
-                datasetStroke : true,
-
-                //Number - Pixel width of dataset stroke
-                datasetStrokeWidth : 2,
-
-                //Boolean - Whether to fill the dataset with a colour
-                datasetFill : false,
-
-                // Function - on animation progress
-                onAnimationProgress: function(){},
-
-                // Function - on animation complete
-                onAnimationComplete: function(){},
-
-                //String - A legend template
-                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
-
+                },
+                series: [{
+                    data: currentData, name: 'Actual', color: '#FF0000'
+                }, {
+                    data: estimateData, name: 'Estimated', color: '#66CCFF'
+                }],
+                title: {
+                    text: ''
+                },
+                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
+                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                loading: false,
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                }
             };
 
         };

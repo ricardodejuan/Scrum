@@ -19,6 +19,7 @@
     "jquery": "latest",
     "jquery-ui": "~1.11.2",
     "socket.io-client": "~1.2.0",
-    "tc-angular-chartjs": "~1.0.9"
+    "highcharts-ng": "~0.0.7",
+    "highstock": "~3.0.1"
   }
 }

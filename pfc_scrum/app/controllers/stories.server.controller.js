@@ -60,6 +60,24 @@ exports.list = function(req, res) {
     });
 };
 
+
+/**
+ * List ALL Stories
+ */
+exports.allStories = function(req, res) {
+    var query = { 'projectId': req.params.projectId };
+
+    Story.find(query).exec(function(err, stories) {
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            res.jsonp(stories);
+        }
+    });
+};
+
 /*
  * Load a Story
  */

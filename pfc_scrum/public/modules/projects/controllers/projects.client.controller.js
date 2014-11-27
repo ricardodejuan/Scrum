@@ -128,6 +128,118 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         $scope.getSprints = function (project) {
             $scope.sprints = Sprints.query({ projectId: project._id });
         };
+
+        $scope.sprintBurnDownChart = function (size, selectedProject) {
+
+            var stories = $http.get('/projects/' + selectedProject._id + '/allStories');
+
+            $modal.open({
+                templateUrl: 'modules/projects/views/project-burndownchart.client.view.html',
+                controller: ProjectBurnDownChartController,
+                size: size,
+                resolve: {
+                    project: function () {
+                        return selectedProject;
+                    },
+                    stories: function () {
+                        return stories.then(function (response) {
+                            return response.data;
+                        });
+                    }
+                }
+            });
+        };
+
+        var ProjectBurnDownChartController = function ($scope, $modalInstance, project, stories) {
+            $scope.authentication = Authentication;
+
+            // If user is not signed in then redirect back home
+            if (!$scope.authentication.user) $location.path('/');
+
+            $scope.stories = stories;
+
+            $scope.ok = function () {
+                $modalInstance.close(project);
+            };
+
+            var currentData = [],
+                estimateData = [],
+                currentStoryPoints = 0,
+                totalStoryPoints = 0,
+                today = new Date(),
+                modified = false;
+
+            function dayDiff(first, second) {
+                return (second-first)/(1000*60*60*24);
+            }
+
+            var totalDays = dayDiff(new Date(project.startTime).getTime(), new Date(project.endTime).getTime()) + 1;
+            var dayLabel = dayDiff(new Date(project.startTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
+
+            angular.forEach(stories, function (story) {
+                if (!story.storyFinished)
+                    currentStoryPoints += story.storyPoint;
+                totalStoryPoints += story.storyPoint;
+            });
+
+            var d = (totalStoryPoints / (totalDays - 1) );
+            for (var k = 0; k < totalDays; k++) {
+                if (k === 0)
+                    estimateData.push(totalStoryPoints);
+                else if (k + 1 === totalDays)
+                    estimateData.push(0);
+                else
+                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
+            }
+
+            for (var j = 0; j <= project.projectBurnDownChart.length; j++) {
+                if (!project.projectBurnDownChart.length || project.projectBurnDownChart.length < dayLabel) {
+                    project.projectBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    modified = true;
+                } else if (j < project.projectBurnDownChart.length  && project.projectBurnDownChart[j].day === dayLabel) {
+                    if (project.projectBurnDownChart[j].storyPoints !== currentStoryPoints) {
+                        project.projectBurnDownChart[j].storyPoints = currentStoryPoints;
+                        modified = true;
+                    }
+                }
+
+                if (j < project.projectBurnDownChart.length)
+                    currentData.push(project.projectBurnDownChart[j].storyPoints);
+            }
+
+            if (modified)
+                project.$update({ projectId: project._id });
+
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
+                    }
+                },
+                series: [{
+                    data: currentData, name: 'Actual', color: '#FF0000'
+                }, {
+                    data: estimateData, name: 'Estimated', color: '#66CCFF'
+                }],
+                title: {
+                    text: ''
+                },
+                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
+                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                loading: false,
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                }
+            };
+
+        };
+
     }
 ]);
 

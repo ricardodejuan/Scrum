@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop', 'tc.chartjs'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop', 'highcharts-ng'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -647,6 +647,173 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
         $scope.getSprints = function (project) {
             $scope.sprints = Sprints.query({ projectId: project._id });
         };
+
+        /*$scope.sprintBurnDownChart = function (size, selectedProject) {
+
+            var stories = $http.get('/projects/' + selectedProject._id + '/allStories');
+
+            $modal.open({
+                templateUrl: 'modules/projects/views/project-burndownchart.client.view.html',
+                controller: ProjectBurnDownChartController,
+                size: size,
+                resolve: {
+                    project: function () {
+                        return selectedProject;
+                    },
+                    stories: function () {
+                        return stories.then(function (response) {
+                            return response.data;
+                        });
+                    }
+                }
+            });
+        };
+
+        var ProjectBurnDownChartController = function ($scope, $modalInstance, project, stories) {
+            $scope.authentication = Authentication;
+
+            // If user is not signed in then redirect back home
+            if (!$scope.authentication.user) $location.path('/');
+
+            $scope.stories = stories;
+
+            $scope.ok = function () {
+                $modalInstance.close(project);
+            };
+
+            var daysLabel = [],
+                currentData = [],
+                estimateData = [],
+                currentStoryPoints = 0,
+                totalStoryPoints = 0,
+                today = new Date(),
+                modified = false;
+
+            function dayDiff(first, second) {
+                return (second-first)/(1000*60*60*24);
+            }
+
+            var totalDays = dayDiff(new Date(project.startTime).getTime(), new Date(project.endTime).getTime()) + 1;
+            var dayLabel = dayDiff(new Date(project.startTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
+
+            for(var i = 1; i <= totalDays; i++) {
+                daysLabel.push('Day ' + i);
+            }
+            daysLabel.push('');
+
+            angular.forEach(stories, function (story) {
+                if (!story.storyFinished)
+                    currentStoryPoints += story.storyPoint;
+                totalStoryPoints += story.storyPoint;
+            });
+
+            var d = (totalStoryPoints / (totalDays - 1) );
+            for (var k = 0; k < totalDays; k++) {
+                if (k === 0)
+                    estimateData.push(totalStoryPoints);
+                else if (k + 1 === totalDays)
+                    estimateData.push(0);
+                else
+                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
+            }
+
+            for (var j = 0; j <= project.projectBurnDownChart.length; j++) {
+                if (!project.projectBurnDownChart.length || project.projectBurnDownChart.length < dayLabel) {
+                    project.projectBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    modified = true;
+                } else if (j < project.projectBurnDownChart.length  && project.projectBurnDownChart[j].day === dayLabel) {
+                    if (project.projectBurnDownChart[j].storyPoints !== currentStoryPoints) {
+                        project.projectBurnDownChart[j].storyPoints = currentStoryPoints;
+                        modified = true;
+                    }
+                }
+
+                if (j < project.projectBurnDownChart.length)
+                    currentData.push(project.projectBurnDownChart[j].storyPoints);
+            }
+
+            if (modified)
+                project.$update({ projectId: project._id });
+
+            $scope.data = {
+                labels: daysLabel,
+                datasets: [
+                    {
+                        label: 'Actual',
+                        strokeColor: 'rgba(255,0,0,1)',
+                        pointColor: 'rgba(255,0,0,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(255,0,0,1)',
+                        data: currentData
+                    },
+                    {
+                        label: 'Estimated',
+                        strokeColor: 'rgba(0,175,255,1)',
+                        pointColor: 'rgba(0,175,255,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(0,175,255,1)',
+                        data: estimateData
+                    }
+                ]
+            };
+
+            // Chart.js Options
+            $scope.options =  {
+
+                // Sets the chart to be responsive
+                responsive: true,
+
+                ///Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines : true,
+
+                //String - Colour of the grid lines
+                scaleGridLineColor : 'rgba(0,0,0,.05)',
+
+                //Number - Width of the grid lines
+                scaleGridLineWidth : 1,
+
+                //Boolean - Whether the line is curved between points
+                bezierCurve : false,
+
+                //Number - Tension of the bezier curve between points
+                bezierCurveTension : 0.4,
+
+                //Boolean - Whether to show a dot for each point
+                pointDot : true,
+
+                //Number - Radius of each point dot in pixels
+                pointDotRadius : 4,
+
+                //Number - Pixel width of point dot stroke
+                pointDotStrokeWidth : 1,
+
+                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+                pointHitDetectionRadius : 20,
+
+                //Boolean - Whether to show a stroke for datasets
+                datasetStroke : true,
+
+                //Number - Pixel width of dataset stroke
+                datasetStrokeWidth : 2,
+
+                //Boolean - Whether to fill the dataset with a colour
+                datasetFill : false,
+
+                // Function - on animation progress
+                onAnimationProgress: function(){},
+
+                // Function - on animation complete
+                onAnimationComplete: function(){},
+
+                //String - A legend template
+                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
+
+            };
+
+        };*/
+
     }
 ]);
 
@@ -1233,19 +1400,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
             $modal.open({
                 templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
-                controller: ["$scope", "$modalInstance", "sprint", "stories", function ($scope, $modalInstance, sprint, stories) {
-                    $scope.sprint = sprint;
-
-                    $scope.stories = stories;
-
-                    $scope.ok = function () {
-                        $modalInstance.close($scope.sprint);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                    };
-                }],
+                controller: SprintBurnDownChartController,
                 size: size,
                 resolve: {
                     sprint: function () {
@@ -1312,19 +1467,167 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             $scope.sprint = sprint;
         });
 
-    }
-]);
+        var SprintBurnDownChartController = ["$scope", "$modalInstance", "sprint", "stories", function ($scope, $modalInstance, sprint, stories) {
+            $scope.authentication = Authentication;
 
-sprintsApp.controller('SprintBurnDownChartController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
-    function ($scope, $stateParams, Authentication, Sprints, $http, $location) {
+            // If user is not signed in then redirect back home
+            if (!$scope.authentication.user) $location.path('/');
 
-        $scope.authentication = Authentication;
+            $scope.stories = stories;
 
-        // If user is not signed in then redirect back home
-        if (!$scope.authentication.user) $location.path('/');
+            $scope.ok = function () {
+                $modalInstance.close(sprint);
+            };
 
-        $scope.data = {};
-        $scope.options = {};
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
+                    }
+                },
+                series: [{
+                    data: [10, 15, 12, 8, 7, 1, 1, 19, 15, 10, 90]
+                }],
+                title: {
+                    text: 'Hello'
+                },
+                xAxis: {currentMin: 1, currentMax: 100, minRange: 2},
+                loading: false
+            };
+
+            /*var daysLabel = [],
+                currentData = [],
+                estimateData = [],
+                currentStoryPoints = 0,
+                totalStoryPoints = 0,
+                today = new Date(),
+                modified = false;
+
+            function dayDiff(first, second) {
+                return (second-first)/(1000*60*60*24);
+            }
+
+            var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
+            var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
+
+            for(var i = 1; i <= totalDays; i++) {
+                daysLabel.push('Day ' + i);
+            }
+            daysLabel.push('');
+
+            angular.forEach(stories, function (story) {
+                if (!story.storyFinished)
+                    currentStoryPoints += story.storyPoint;
+                totalStoryPoints += story.storyPoint;
+            });
+
+            var d = (totalStoryPoints / (totalDays - 1) );
+            for (var k = 0; k < totalDays; k++) {
+                if (k === 0)
+                    estimateData.push(totalStoryPoints);
+                else if (k + 1 === totalDays)
+                    estimateData.push(0);
+                else
+                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
+            }
+
+            for (var j = 0; j <= sprint.sprintBurnDownChart.length; j++) {
+                if (!sprint.sprintBurnDownChart.length || sprint.sprintBurnDownChart.length < dayLabel) {
+                    sprint.sprintBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    modified = true;
+                } else if (j < sprint.sprintBurnDownChart.length  && sprint.sprintBurnDownChart[j].day === dayLabel) {
+                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentStoryPoints) {
+                        sprint.sprintBurnDownChart[j].storyPoints = currentStoryPoints;
+                        modified = true;
+                    }
+                }
+
+                if (j < sprint.sprintBurnDownChart.length)
+                    currentData.push(sprint.sprintBurnDownChart[j].storyPoints);
+            }
+
+            if (modified)
+                sprint.$update({ sprintId: sprint._id });
+
+            $scope.data = {
+                labels: daysLabel,
+                datasets: [
+                    {
+                        label: 'Actual',
+                        strokeColor: 'rgba(255,0,0,1)',
+                        pointColor: 'rgba(255,0,0,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(255,0,0,1)',
+                        data: currentData
+                    },
+                    {
+                        label: 'Estimated',
+                        strokeColor: 'rgba(0,175,255,1)',
+                        pointColor: 'rgba(0,175,255,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(0,175,255,1)',
+                        data: estimateData
+                    }
+                ]
+            };
+
+            // Chart.js Options
+            $scope.options =  {
+
+                // Sets the chart to be responsive
+                responsive: true,
+
+                ///Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines : true,
+
+                //String - Colour of the grid lines
+                scaleGridLineColor : 'rgba(0,0,0,.05)',
+
+                //Number - Width of the grid lines
+                scaleGridLineWidth : 1,
+
+                //Boolean - Whether the line is curved between points
+                bezierCurve : false,
+
+                //Number - Tension of the bezier curve between points
+                bezierCurveTension : 0.4,
+
+                //Boolean - Whether to show a dot for each point
+                pointDot : true,
+
+                //Number - Radius of each point dot in pixels
+                pointDotRadius : 4,
+
+                //Number - Pixel width of point dot stroke
+                pointDotStrokeWidth : 1,
+
+                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+                pointHitDetectionRadius : 20,
+
+                //Boolean - Whether to show a stroke for datasets
+                datasetStroke : true,
+
+                //Number - Pixel width of dataset stroke
+                datasetStrokeWidth : 2,
+
+                //Boolean - Whether to fill the dataset with a colour
+                datasetFill : false,
+
+                // Function - on animation progress
+                onAnimationProgress: function(){},
+
+                // Function - on animation complete
+                onAnimationComplete: function(){},
+
+                //String - A legend template
+                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
+
+            };*/
+
+        }];
 
     }
 ]);

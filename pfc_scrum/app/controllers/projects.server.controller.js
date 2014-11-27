@@ -84,7 +84,8 @@ exports.update = function(req, res) {
     var data = { projectName: req.body.projectName,
                  descriptionName: req.body.descriptionName,
                  startTime: req.body.startTime,
-                 endTime: req.body.endTime
+                 endTime: req.body.endTime,
+                 projectBurnDownChart: req.body.projectBurnDownChart
     };
 
     project = _.extend(project, data);
