@@ -42,6 +42,15 @@ var SprintSchema = new Schema({
         type: Boolean,
         default: false
     },
+    sprintBurnDownChart : [{
+        storyPoints: {
+            type: Number
+        },
+        day: {
+            type: Number
+        },
+        _id: false
+    }],
     projectId: {
         type: Schema.Types.ObjectId,
         ref: 'Project'

@@ -55,23 +55,6 @@ var ProjectSchema = new Schema({
         },
         _id: false
     }],
-    burnDownChart: {
-        burnDownChartName: {
-            type: String,
-            required: true,
-            trim: true,
-            default: 'Burndown Chart'
-        },
-        workingDays: {
-            type: Number
-        },
-        estimatePoints: {
-            type: Number
-        },
-        remainingPoints: {
-            type: Number
-        }
-    },
     productBackLog: {
         risks: [{
             type: String,

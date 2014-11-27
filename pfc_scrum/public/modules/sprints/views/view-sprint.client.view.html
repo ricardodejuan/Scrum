@@ -7,6 +7,7 @@
                 </a>
             </div>
             <div class="sprint-meetings">
+                <button href="" ng-click="sprintBurnDownChart('lg', sprint, stories)" class="btn btn-primary">Burndown Chart</button>
                 <button href="" data-toggle="dropdown" class="btn btn-info">Meetings<span class="caret"></span></button>
                 <ul class="dropdown-menu menu-left" role="menu">
                     <li><a href="" ng-click="dailyScrum = true" ui-sref=".listDailies({ projectId: projectId, sprintId: sprint._id })">DailyScrum</a></li>

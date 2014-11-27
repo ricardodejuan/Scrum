@@ -89,9 +89,9 @@ exports.update = function (req, res) {
     var data = { sprintName: req.body.sprintName,
                  sprintDescription: req.body.sprintDescription,
                  sprintStartTime: req.body.sprintStartTime,
-                 sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
                  sprintFinished: req.body.sprintFinished,
+                 sprintBurnDownChart: req.body.sprintBurnDownChart,
                  sprintReviewMeeting: req.body.sprintReviewMeeting,
                  sprintRetrospectiveMeeting: req.body.sprintRetrospectiveMeeting
     };
@@ -106,10 +106,12 @@ exports.update = function (req, res) {
 
             sprint.save(function (err) {
                 if (err) {
+                    console.log(err);
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
                 } else {
+                    console.log(sprint);
                     res.jsonp(sprint);
                 }
             });

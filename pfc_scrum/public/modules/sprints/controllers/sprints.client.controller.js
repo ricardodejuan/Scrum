@@ -444,6 +444,22 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
+                controller: SprintBurnDownChartController,
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    },
+                    stories: function () {
+                        return setStories;
+                    }
+                }
+            });
+        };
+
         // Sockets
 
 
@@ -497,6 +513,151 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         SocketSprint.on('on.sprint.updated', function(sprint) {
             $scope.sprint = sprint;
         });
+
+        var SprintBurnDownChartController = function ($scope, $modalInstance, sprint, stories) {
+            $scope.authentication = Authentication;
+
+            // If user is not signed in then redirect back home
+            if (!$scope.authentication.user) $location.path('/');
+
+            $scope.stories = stories;
+
+            $scope.ok = function () {
+                $modalInstance.close(sprint);
+            };
+
+            var daysLabel = [],
+                currentData = [],
+                estimateData = [],
+                currentStoryPoints = 0,
+                totalStoryPoints = 0,
+                today = new Date(),
+                modified = false;
+
+            function dayDiff(first, second) {
+                return (second-first)/(1000*60*60*24);
+            }
+
+            var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
+            var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
+
+            for(var i = 1; i <= totalDays; i++) {
+                daysLabel.push('Day ' + i);
+            }
+            daysLabel.push('');
+
+            angular.forEach(stories, function (story) {
+                if (!story.storyFinished)
+                    currentStoryPoints += story.storyPoint;
+                totalStoryPoints += story.storyPoint;
+            });
+
+            var d = (totalStoryPoints / (totalDays - 1) );
+            for (var k = 0; k < totalDays; k++) {
+                if (k === 0)
+                    estimateData.push(totalStoryPoints);
+                else if (k + 1 === totalDays)
+                    estimateData.push(0);
+                else
+                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
+            }
+
+            for (var j = 0; j <= sprint.sprintBurnDownChart.length; j++) {
+                if (!sprint.sprintBurnDownChart.length || sprint.sprintBurnDownChart.length < dayLabel) {
+                    sprint.sprintBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    modified = true;
+                } else if (j < sprint.sprintBurnDownChart.length  && sprint.sprintBurnDownChart[j].day === dayLabel) {
+                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentStoryPoints) {
+                        sprint.sprintBurnDownChart[j].storyPoints = currentStoryPoints;
+                        modified = true;
+                    }
+                }
+
+                if (j < sprint.sprintBurnDownChart.length)
+                    currentData.push(sprint.sprintBurnDownChart[j].storyPoints);
+            }
+
+            if (modified)
+                sprint.$update({ sprintId: sprint._id });
+
+            $scope.data = {
+                labels: daysLabel,
+                datasets: [
+                    {
+                        label: 'Actual',
+                        strokeColor: 'rgba(255,0,0,1)',
+                        pointColor: 'rgba(255,0,0,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(255,0,0,1)',
+                        data: currentData
+                    },
+                    {
+                        label: 'Estimated',
+                        strokeColor: 'rgba(0,175,255,1)',
+                        pointColor: 'rgba(0,175,255,1)',
+                        pointStrokeColor: '#fff',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(0,175,255,1)',
+                        data: estimateData
+                    }
+                ]
+            };
+
+            // Chart.js Options
+            $scope.options =  {
+
+                // Sets the chart to be responsive
+                responsive: true,
+
+                ///Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines : true,
+
+                //String - Colour of the grid lines
+                scaleGridLineColor : "rgba(0,0,0,.05)",
+
+                //Number - Width of the grid lines
+                scaleGridLineWidth : 1,
+
+                //Boolean - Whether the line is curved between points
+                bezierCurve : false,
+
+                //Number - Tension of the bezier curve between points
+                bezierCurveTension : 0.4,
+
+                //Boolean - Whether to show a dot for each point
+                pointDot : true,
+
+                //Number - Radius of each point dot in pixels
+                pointDotRadius : 4,
+
+                //Number - Pixel width of point dot stroke
+                pointDotStrokeWidth : 1,
+
+                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+                pointHitDetectionRadius : 20,
+
+                //Boolean - Whether to show a stroke for datasets
+                datasetStroke : true,
+
+                //Number - Pixel width of dataset stroke
+                datasetStrokeWidth : 2,
+
+                //Boolean - Whether to fill the dataset with a colour
+                datasetFill : false,
+
+                // Function - on animation progress
+                onAnimationProgress: function(){},
+
+                // Function - on animation complete
+                onAnimationComplete: function(){},
+
+                //String - A legend template
+                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
+
+            };
+
+        };
 
     }
 ]);

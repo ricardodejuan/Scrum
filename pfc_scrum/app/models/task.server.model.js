@@ -32,10 +32,6 @@ var TaskSchema = new Schema({
         type: String,
         enum: ['VERY HIGH', 'HIGH', 'MEDIUM', 'LOW', 'VERY LOW']
     },
-    taskPoints: {
-        type: Number,
-        required: true
-    },
     taskRemark: {
         type: String,
         trim: true

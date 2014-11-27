@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop', 'tc.chartjs'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {

@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop', 'tc.chartjs'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -1230,6 +1230,34 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
+        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
+                controller: ["$scope", "$modalInstance", "sprint", "stories", function ($scope, $modalInstance, sprint, stories) {
+                    $scope.sprint = sprint;
+
+                    $scope.stories = stories;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                }],
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    },
+                    stories: function () {
+                        return setStories;
+                    }
+                }
+            });
+        };
+
         // Sockets
 
 
@@ -1283,6 +1311,20 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         SocketSprint.on('on.sprint.updated', function(sprint) {
             $scope.sprint = sprint;
         });
+
+    }
+]);
+
+sprintsApp.controller('SprintBurnDownChartController', ['$scope', '$stateParams', 'Authentication', 'Sprints', '$http', '$location',
+    function ($scope, $stateParams, Authentication, Sprints, $http, $location) {
+
+        $scope.authentication = Authentication;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.data = {};
+        $scope.options = {};
 
     }
 ]);
@@ -1640,7 +1682,6 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 taskName: this.taskName,
                 taskDescription: this.taskDescription,
                 taskPriority: this.taskPriority,
-                taskPoints: this.taskPoints,
                 taskRemark: this.taskRemark,
                 taskRuleValidation: this.taskRuleValidation
             });
@@ -1651,7 +1692,6 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 $scope.taskName = '';
                 $scope.taskDescription = '';
                 $scope.taskPriority = {};
-                $scope.taskPoints = 0;
                 $scope.taskRemark = '';
                 $scope.taskRuleValidation = '';
             });
