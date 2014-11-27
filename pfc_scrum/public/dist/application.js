@@ -7,7 +7,7 @@
 var ApplicationConfiguration = (function () {
     // Init module configuration options
     var applicationModuleName = 'Scrum';
-    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'ngDragDrop', 'highcharts-ng'];
+    var applicationModuleVendorDependencies = ['ngResource', 'ngAnimate', 'ui.router', 'ui.bootstrap', 'ui.utils', 'btford.socket-io', 'xeditable', 'checklist-model', 'ngDragDrop', 'highcharts-ng'];
 
     // Add a new vertical module
     var registerModule = function(moduleName, dependencies) {
@@ -648,7 +648,7 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
             $scope.sprints = Sprints.query({ projectId: project._id });
         };
 
-        /*$scope.sprintBurnDownChart = function (size, selectedProject) {
+        $scope.sprintBurnDownChart = function (size, selectedProject) {
 
             var stories = $http.get('/projects/' + selectedProject._id + '/allStories');
 
@@ -669,7 +669,7 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
             });
         };
 
-        var ProjectBurnDownChartController = function ($scope, $modalInstance, project, stories) {
+        var ProjectBurnDownChartController = ["$scope", "$modalInstance", "project", "stories", function ($scope, $modalInstance, project, stories) {
             $scope.authentication = Authentication;
 
             // If user is not signed in then redirect back home
@@ -681,8 +681,7 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
                 $modalInstance.close(project);
             };
 
-            var daysLabel = [],
-                currentData = [],
+            var currentData = [],
                 estimateData = [],
                 currentStoryPoints = 0,
                 totalStoryPoints = 0,
@@ -695,11 +694,6 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
 
             var totalDays = dayDiff(new Date(project.startTime).getTime(), new Date(project.endTime).getTime()) + 1;
             var dayLabel = dayDiff(new Date(project.startTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
-
-            for(var i = 1; i <= totalDays; i++) {
-                daysLabel.push('Day ' + i);
-            }
-            daysLabel.push('');
 
             angular.forEach(stories, function (story) {
                 if (!story.storyFinished)
@@ -735,84 +729,35 @@ projectsApp.controller('ProjectsViewController', ['$scope', '$stateParams', 'Aut
             if (modified)
                 project.$update({ projectId: project._id });
 
-            $scope.data = {
-                labels: daysLabel,
-                datasets: [
-                    {
-                        label: 'Actual',
-                        strokeColor: 'rgba(255,0,0,1)',
-                        pointColor: 'rgba(255,0,0,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(255,0,0,1)',
-                        data: currentData
-                    },
-                    {
-                        label: 'Estimated',
-                        strokeColor: 'rgba(0,175,255,1)',
-                        pointColor: 'rgba(0,175,255,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(0,175,255,1)',
-                        data: estimateData
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
                     }
-                ]
+                },
+                series: [{
+                    data: currentData, name: 'Actual', color: '#FF0000'
+                }, {
+                    data: estimateData, name: 'Estimated', color: '#66CCFF'
+                }],
+                title: {
+                    text: ''
+                },
+                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
+                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                loading: false,
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                }
             };
 
-            // Chart.js Options
-            $scope.options =  {
-
-                // Sets the chart to be responsive
-                responsive: true,
-
-                ///Boolean - Whether grid lines are shown across the chart
-                scaleShowGridLines : true,
-
-                //String - Colour of the grid lines
-                scaleGridLineColor : 'rgba(0,0,0,.05)',
-
-                //Number - Width of the grid lines
-                scaleGridLineWidth : 1,
-
-                //Boolean - Whether the line is curved between points
-                bezierCurve : false,
-
-                //Number - Tension of the bezier curve between points
-                bezierCurveTension : 0.4,
-
-                //Boolean - Whether to show a dot for each point
-                pointDot : true,
-
-                //Number - Radius of each point dot in pixels
-                pointDotRadius : 4,
-
-                //Number - Pixel width of point dot stroke
-                pointDotStrokeWidth : 1,
-
-                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-                pointHitDetectionRadius : 20,
-
-                //Boolean - Whether to show a stroke for datasets
-                datasetStroke : true,
-
-                //Number - Pixel width of dataset stroke
-                datasetStrokeWidth : 2,
-
-                //Boolean - Whether to fill the dataset with a colour
-                datasetFill : false,
-
-                // Function - on animation progress
-                onAnimationProgress: function(){},
-
-                // Function - on animation complete
-                onAnimationComplete: function(){},
-
-                //String - A legend template
-                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
-
-            };
-
-        };*/
+        }];
 
     }
 ]);
@@ -1479,25 +1424,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 $modalInstance.close(sprint);
             };
 
-            $scope.chartConfig = {
-                options: {
-                    chart: {
-                        type: 'line',
-                        zoomType: 'x'
-                    }
-                },
-                series: [{
-                    data: [10, 15, 12, 8, 7, 1, 1, 19, 15, 10, 90]
-                }],
-                title: {
-                    text: 'Hello'
-                },
-                xAxis: {currentMin: 1, currentMax: 100, minRange: 2},
-                loading: false
-            };
-
-            /*var daysLabel = [],
-                currentData = [],
+            var currentData = [],
                 estimateData = [],
                 currentStoryPoints = 0,
                 totalStoryPoints = 0,
@@ -1510,11 +1437,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
             var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
-
-            for(var i = 1; i <= totalDays; i++) {
-                daysLabel.push('Day ' + i);
-            }
-            daysLabel.push('');
 
             angular.forEach(stories, function (story) {
                 if (!story.storyFinished)
@@ -1550,82 +1472,33 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             if (modified)
                 sprint.$update({ sprintId: sprint._id });
 
-            $scope.data = {
-                labels: daysLabel,
-                datasets: [
-                    {
-                        label: 'Actual',
-                        strokeColor: 'rgba(255,0,0,1)',
-                        pointColor: 'rgba(255,0,0,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(255,0,0,1)',
-                        data: currentData
-                    },
-                    {
-                        label: 'Estimated',
-                        strokeColor: 'rgba(0,175,255,1)',
-                        pointColor: 'rgba(0,175,255,1)',
-                        pointStrokeColor: '#fff',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(0,175,255,1)',
-                        data: estimateData
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
                     }
-                ]
+                },
+                series: [{
+                    data: currentData, name: 'Actual', color: '#FF0000'
+                }, {
+                    data: estimateData, name: 'Estimated', color: '#66CCFF'
+                }],
+                title: {
+                    text: ''
+                },
+                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
+                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                loading: false,
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                }
             };
-
-            // Chart.js Options
-            $scope.options =  {
-
-                // Sets the chart to be responsive
-                responsive: true,
-
-                ///Boolean - Whether grid lines are shown across the chart
-                scaleShowGridLines : true,
-
-                //String - Colour of the grid lines
-                scaleGridLineColor : 'rgba(0,0,0,.05)',
-
-                //Number - Width of the grid lines
-                scaleGridLineWidth : 1,
-
-                //Boolean - Whether the line is curved between points
-                bezierCurve : false,
-
-                //Number - Tension of the bezier curve between points
-                bezierCurveTension : 0.4,
-
-                //Boolean - Whether to show a dot for each point
-                pointDot : true,
-
-                //Number - Radius of each point dot in pixels
-                pointDotRadius : 4,
-
-                //Number - Pixel width of point dot stroke
-                pointDotStrokeWidth : 1,
-
-                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-                pointHitDetectionRadius : 20,
-
-                //Boolean - Whether to show a stroke for datasets
-                datasetStroke : true,
-
-                //Number - Pixel width of dataset stroke
-                datasetStrokeWidth : 2,
-
-                //Boolean - Whether to fill the dataset with a colour
-                datasetFill : false,
-
-                // Function - on animation progress
-                onAnimationProgress: function(){},
-
-                // Function - on animation complete
-                onAnimationComplete: function(){},
-
-                //String - A legend template
-                legendTemplate : '<ul class="tc-chart-js-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].strokeColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>'
-
-            };*/
 
         }];
 
@@ -1881,8 +1754,8 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
     }
 ]);
 
-storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location',
-    function ($scope, $stateParams, Authentication, $location) {
+storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location', '$http',
+    function ($scope, $stateParams, Authentication, $location, $http) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -1894,6 +1767,18 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
             'COULD',
             'WON\'T'
         ];
+
+        $scope.members = $http.get('/projects/' + $stateParams.projectId + '/members');
+
+        $scope.showMembers = function (story) {
+            var selected = [];
+            angular.forEach($scope.members, function (m) {
+                if (story.users.indexOf(m._id) >= 0) {
+                    selected.push(m.username);
+                }
+            });
+            return selected.length ? selected.join(', ') : 's';
+        };
 
         $scope.update = function (updatedStory) {
             var story = updatedStory;

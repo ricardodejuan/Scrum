@@ -48,6 +48,14 @@
                 </div>
             </fieldset>
         </form>
+        <div class="form-group">
+            <label class="control-label" for="users">Users</label>
+            <div class="controls">
+                <a href="" editable-checklist="story.users" e-ng-options="m._id as m.username for m in members" id="users">
+                    <p>{{ showMembers(story) }}</p>
+                </a>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-success" ng-click="update(story); ok()" ng-disabled="updateStoryForm.$invalid">Update</button>

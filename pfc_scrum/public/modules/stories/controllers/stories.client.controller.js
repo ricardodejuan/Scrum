@@ -193,8 +193,8 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
     }
 ]);
 
-storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location',
-    function ($scope, $stateParams, Authentication, $location) {
+storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authentication', '$location', '$http', '$log',
+    function ($scope, $stateParams, Authentication, $location, $http, $log) {
         $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
@@ -207,9 +207,24 @@ storiesApp.controller('StoriesEditController', ['$scope', '$stateParams', 'Authe
             'WON\'T'
         ];
 
+        $http.get('/projects/' + $stateParams.projectId + '/members').then(function (response) {
+            $scope.members = response.data;
+        });
+
+        $scope.showMembers = function (story) {
+            var selected = [];
+            angular.forEach($scope.members, function (m) {
+                if (story.users.indexOf(m._id) >= 0) {
+                    selected.push(m.username);
+                }
+            });
+            return selected.length ? selected.join(', ') : 'No user assigned';
+        };
+
         $scope.update = function (updatedStory) {
             var story = updatedStory;
             story.$update({ storyId: story._id });
         };
+
     }
 ]);

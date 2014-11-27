@@ -34,6 +34,7 @@ module.exports = {
                 'public/lib/angular-socket-io/socket.min.js',
                 'public/lib/socket.io-client/socket.io.js',
                 'public/lib/angular-xeditable/dist/js/xeditable.js',
+                'public/lib/checklist-model/checklist-model.js',
                 'public/lib/angular-dragdrop/src/angular-dragdrop.min.js',
                 'public/lib/highcharts-ng/dist/highcharts-ng.js',
                 'public/lib/highstock/js/highstock.src.js'
