@@ -33,15 +33,19 @@ storiesApp.directive('stickyNote', ['SocketPB', '$stateParams', function(SocketP
             }
         });
 
+        function priotiy(element, story) {
+            switch(story.storyPriority) {
+                case 'MUST': element.addClass('alert-danger'); break;
+                case 'SHOULD': element.addClass('alert-warning'); break;
+                case 'COULD': element.addClass('alert-info'); break;
+                case 'WON\'T': element.addClass('alert-success'); break;
+            }
+        }
+
         // Some DOM initiation to make it nice
         element.css('left', scope.story.storyPosX + 'px');
         element.css('top', scope.story.storyPosY + 'px');
-        switch(scope.story.storyPriority) {
-            case 'MUST': element.addClass('alert-danger'); break;
-            case 'SHOULD': element.addClass('alert-warning'); break;
-            case 'COULD': element.addClass('alert-info'); break;
-            case 'WON\'T': element.addClass('alert-success'); break;
-        }
+        priotiy(element, scope.story);
         element.fadeIn();
     };
 
@@ -50,7 +54,8 @@ storiesApp.directive('stickyNote', ['SocketPB', '$stateParams', function(SocketP
         SocketPB.on('on.story.updated', function(story) {
             // Update if the same story
             if(story._id === $scope.story._id) {
-                $scope.story = story;
+                $scope.story.storyTitle = story.storyTitle;
+                $scope.story.storyDescription = story.storyDescription;
             }
         });
     };
@@ -135,6 +140,7 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
 
                     $scope.ok = function () {
                         SocketPB.emit('story.updated', {story: $scope.story, room: $stateParams.projectId});
+                        $scope.stories = $scope.stories;
                         $modalInstance.close($scope.story);
                     };
 
