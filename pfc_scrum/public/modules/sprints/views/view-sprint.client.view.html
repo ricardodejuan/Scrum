@@ -2,9 +2,9 @@
     <div class="sprint">
         <h3>
             <div>
-                <a href="" ng-click="editSprint('', sprint)" class="btn-danger">
+                <button href="" class="btn btn-danger" ng-click="editSprint('', sprint)">
                     {{sprint.sprintName}}
-                </a>
+                </button>
             </div>
             <div class="sprint-meetings">
                 <button href="" ng-click="sprintBurnDownChart('lg', sprint, stories)" class="btn btn-primary">Burndown Chart</button>
@@ -18,7 +18,7 @@
         </h3>
     </div>
 
-    <div class="page-content-wrapper" ng-hide="dailyScrum == true">
+    <div class="page-content-wrapper" ng-hide="dailyScrum">
         <!-- Sprint Backlog -->
         <div class="phase phase-size">
             <div class="panel panel-default" data-drop="true" ng-model="toggler">
@@ -64,8 +64,8 @@
         </div>
         <!-- Add new Phase -->
         <div class="phase phase-size">
-            <button class="btn btn-link" ng-hide="creatingPhase == true" ng-click="creatingPhase = true;">Add a phase&hellip;</button>
-            <div class="panel panel-default" ng-show="creatingPhase == true">
+            <button class="btn btn-link" ng-hide="creatingPhase" ng-click="creatingPhase = true;">Add a phase&hellip;</button>
+            <div class="panel panel-default" ng-show="creatingPhase">
                 <div class="panel-body">
                     <form role="form">
                         <div class="form-group">

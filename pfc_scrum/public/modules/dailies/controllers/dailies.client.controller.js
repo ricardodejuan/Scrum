@@ -13,8 +13,6 @@ dailiesApp.controller('DailyScrumController', ['$scope', '$stateParams', 'Authen
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
 
-        $scope.dailyScrum = true;
-
         $scope.dailies = Dailies.query({ sprintId: $stateParams.sprintId});
 
         $scope.createDaily = function () {

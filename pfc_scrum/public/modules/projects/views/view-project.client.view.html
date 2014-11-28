@@ -3,18 +3,18 @@
     <div class="col-md-1">
         <h4>
             <ul class="nav nav-stacked navbar-left" role="tablist">
-                <li><a href="" ui-sref=".listStories">Product Backlog</a></li>
+                <li><button href="" ui-sref=".listStories">Product Backlog</button></li>
                 <li class="dropdown">
-                    <a href="#" ng-click="getSprints(project)" data-toggle="dropdown">Sprints<span class="caret"></span></a>
+                    <button href="#" ng-click="getSprints(project)" data-toggle="dropdown">Sprints<span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu">
                         <li data-ng-repeat="sprint in sprints"><a href="" ui-sref=".viewSprint({sprintId: sprint._id})">{{sprint.sprintName}}</a></li>
                         <li class="divider"></li>
                         <li><a href="" ui-sref=".createSprint">New Sprint</a></li>
                     </ul>
                 </li>
-                <li><a href="" ng-click="sprintBurnDownChart('lg', project)">Burndown Chart Project</a></li>
+                <li><button href="" ng-click="sprintBurnDownChart('lg', project)">Project Burndown Chart</button></li>
                 <li class="dropdown">
-                    <a href="#" data-toggle="dropdown">Settings<span class="caret"></span></a>
+                    <button href="#" data-toggle="dropdown">Settings<span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="" ng-click="modalViewMembers('', project)">View members</a></li>
                         <li><a href="" ng-click="modalAddMembers('', project)">Add members</a></li>

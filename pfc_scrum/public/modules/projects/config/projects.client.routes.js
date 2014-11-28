@@ -25,7 +25,7 @@ angular.module('projects').config(['$stateProvider',
                 templateUrl: 'modules/stories/views/list-stories.client.view.html'
             }).
             state('viewProject.createSprint', {
-                url: '/sprints',
+                url: '/createSprint',
                 templateUrl: 'modules/sprints/views/create-sprint.client.view.html'
             }).
             state('viewProject.viewSprint', {
