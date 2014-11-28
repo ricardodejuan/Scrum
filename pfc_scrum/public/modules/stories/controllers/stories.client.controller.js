@@ -50,9 +50,7 @@ storiesApp.directive('stickyNote', ['SocketPB', '$stateParams', function(SocketP
         SocketPB.on('on.story.updated', function(story) {
             // Update if the same story
             if(story._id === $scope.story._id) {
-                $scope.story.storyTitle = story.storyTitle;
-                $scope.story.storyDescription = story.storyDescription;
-
+                $scope.story = story;
             }
         });
     };

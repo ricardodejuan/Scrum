@@ -10,3 +10,11 @@
 .project-name {
     padding-left: 15px;
 }
+
+.nav-menu {
+    min-height: 729px;
+}
+
+.wrapper {
+    margin-left: -15px;
+}

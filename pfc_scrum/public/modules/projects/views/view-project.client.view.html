@@ -1,20 +1,20 @@
 <section data-ng-controller="ProjectsViewController">
 
-    <div class="col-md-1">
-        <h4>
-            <ul class="nav nav-stacked navbar-left" role="tablist">
-                <li><button href="" ui-sref=".listStories">Product Backlog</button></li>
+    <div class="col-md-1 navbar-inverse nav-menu">
+        <h5>
+            <ul class="sidebar-nav nav navbar-nav nav-stacked" role="tablist">
+                <li><a href="" ui-sref=".listStories">Product Backlog</a></li>
                 <li class="dropdown">
-                    <button href="#" ng-click="getSprints(project)" data-toggle="dropdown">Sprints<span class="caret"></span></button>
+                    <a href="#" ng-click="getSprints(project)" data-toggle="dropdown">Sprints<span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li data-ng-repeat="sprint in sprints"><a href="" ui-sref=".viewSprint({sprintId: sprint._id})">{{sprint.sprintName}}</a></li>
                         <li class="divider"></li>
                         <li><a href="" ui-sref=".createSprint">New Sprint</a></li>
                     </ul>
                 </li>
-                <li><button href="" ng-click="sprintBurnDownChart('lg', project)">Project Burndown Chart</button></li>
+                <li><a href="" ng-click="sprintBurnDownChart('lg', project)">Project Burndown Chart</a></li>
                 <li class="dropdown">
-                    <button href="#" data-toggle="dropdown">Settings<span class="caret"></span></button>
+                    <a href="#" data-toggle="dropdown">Settings<span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="" ng-click="modalViewMembers('', project)">View members</a></li>
                         <li><a href="" ng-click="modalAddMembers('', project)">Add members</a></li>
@@ -22,9 +22,9 @@
                     </ul>
                 </li>
             </ul>
-        </h4>
+        </h5>
     </div>
-    <div class="col-md-11">
+    <div class="col-md-11 wrapper">
         <h3 class="project-name">
             {{project.projectName}}
             <a href="" ng-click="modal('', project)">
