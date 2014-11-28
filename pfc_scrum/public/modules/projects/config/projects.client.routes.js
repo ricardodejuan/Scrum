@@ -32,13 +32,13 @@ angular.module('projects').config(['$stateProvider',
                 url: '/sprints/:sprintId',
                 templateUrl: 'modules/sprints/views/view-sprint.client.view.html'
             }).
+            state('viewProject.viewSprint.dashboard', {
+                url: '/dashboard',
+                templateUrl: 'modules/sprints/views/sprint-dashboard.client.view.html'
+            }).
             state('viewProject.viewSprint.listDailies', {
                 url: '/dailies',
-                views: {
-                    'dailies': {
-                        templateUrl: 'modules/dailies/views/list-dailies.client.view.html'
-                    }
-                }
+                templateUrl: 'modules/dailies/views/list-dailies.client.view.html'
             });
     }
 ]);

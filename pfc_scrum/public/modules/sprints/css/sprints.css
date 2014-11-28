@@ -10,6 +10,7 @@
 }
 
 .page-content-wrapper {
+    margin-top: 30px;
     white-space: nowrap;
     width: 100%;
     overflow-x: auto;

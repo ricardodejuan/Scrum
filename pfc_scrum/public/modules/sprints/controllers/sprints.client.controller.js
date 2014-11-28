@@ -85,12 +85,214 @@ sprintsApp.controller('SprintsCreateUpdateController', ['$scope', '$stateParams'
     }
 ]);
 
-
 sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', 'Stories', '$http', '$location', '$modal', 'SocketSprint', '$log',
     function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, Stories, $http, $location, $modal, SocketSprint, $log) {
 
         $scope.authentication = Authentication;
-        $scope.projectId = $stateParams.projectId;
+
+        // If user is not signed in then redirect back home
+        if (!$scope.authentication.user) $location.path('/');
+
+        $scope.stories = [];
+
+        $scope.sprint =  Sprints.get({
+            projectId: $stateParams.projectId,
+            sprintId: $stateParams.sprintId
+        });
+
+        // Get Stories and Tasks
+        $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
+            angular.forEach(result.data, function (s) {
+                $scope.stories.push( new Stories(s) );
+            });
+        });
+
+        $scope.editSprint = function (size, selectedSprint) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/edit-sprint.client.view.html',
+                controller: function ($scope, $modalInstance, sprint) {
+                    $scope.sprint = sprint;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    }
+                }
+            });
+        };
+
+        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
+                controller: SprintBurnDownChartController,
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    },
+                    stories: function () {
+                        return setStories;
+                    }
+                }
+            });
+        };
+
+        var SprintBurnDownChartController = function ($scope, $modalInstance, sprint, stories) {
+            $scope.authentication = Authentication;
+
+            // If user is not signed in then redirect back home
+            if (!$scope.authentication.user) $location.path('/');
+
+            $scope.stories = stories;
+
+            $scope.ok = function () {
+                $modalInstance.close(sprint);
+            };
+
+            var currentData = [],
+                estimateData = [],
+                currentStoryPoints = 0,
+                totalStoryPoints = 0,
+                today = new Date(),
+                modified = false;
+
+            function dayDiff(first, second) {
+                return (second-first)/(1000*60*60*24);
+            }
+
+            var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
+            var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
+
+            angular.forEach(stories, function (story) {
+                if (!story.storyFinished)
+                    currentStoryPoints += story.storyPoint;
+                totalStoryPoints += story.storyPoint;
+            });
+
+            var d = (totalStoryPoints / (totalDays - 1) );
+            for (var k = 0; k < totalDays; k++) {
+                if (k === 0)
+                    estimateData.push(totalStoryPoints);
+                else if (k + 1 === totalDays)
+                    estimateData.push(0);
+                else
+                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
+            }
+
+            for (var j = 0; j <= sprint.sprintBurnDownChart.length; j++) {
+                if (!sprint.sprintBurnDownChart.length || sprint.sprintBurnDownChart.length < dayLabel) {
+                    sprint.sprintBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    modified = true;
+                } else if (j < sprint.sprintBurnDownChart.length  && sprint.sprintBurnDownChart[j].day === dayLabel) {
+                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentStoryPoints) {
+                        sprint.sprintBurnDownChart[j].storyPoints = currentStoryPoints;
+                        modified = true;
+                    }
+                }
+
+                if (j < sprint.sprintBurnDownChart.length)
+                    currentData.push(sprint.sprintBurnDownChart[j].storyPoints);
+            }
+
+            if (modified)
+                sprint.$update({ sprintId: sprint._id });
+
+            $scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
+                    }
+                },
+                series: [{
+                    data: currentData, name: 'Actual', color: '#FF0000'
+                }, {
+                    data: estimateData, name: 'Estimated', color: '#66CCFF'
+                }],
+                title: {
+                    text: ''
+                },
+                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
+                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                loading: false,
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                }
+            };
+
+        };
+
+        $scope.sprintReview = function (size, selectedSprint, setStories) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-review.client.view.html',
+                controller: function ($scope, $modalInstance, sprint, stories) {
+                    $scope.sprint = sprint;
+
+                    $scope.stories = stories;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    },
+                    stories: function () {
+                        return setStories;
+                    }
+                }
+            });
+        };
+
+        $scope.sprintRestrospective = function (size, selectedSprint) {
+            $modal.open({
+                templateUrl: 'modules/sprints/views/sprint-retrospective.client.view.html',
+                controller: function ($scope, $modalInstance, sprint) {
+                    $scope.sprint = sprint;
+
+                    $scope.ok = function () {
+                        $modalInstance.close($scope.sprint);
+                    };
+
+                    $scope.cancel = function () {
+                        $modalInstance.dismiss('cancel');
+                    };
+                },
+                size: size,
+                resolve: {
+                    sprint: function () {
+                        return selectedSprint;
+                    }
+                }
+            });
+        };
+    }
+]);
+
+sprintsApp.controller('SprintsDashboardController', ['$scope', '$stateParams', 'Authentication', 'Sprints', 'Phases', 'Tasks', 'Stories', '$http', '$location', '$modal', 'SocketSprint', '$log',
+    function ($scope, $stateParams, Authentication, Sprints, Phases, Tasks, Stories, $http, $location, $modal, SocketSprint, $log) {
+
+        $scope.authentication = Authentication;
 
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
@@ -368,99 +570,9 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                 }
             });
         };
-        
-        $scope.editSprint = function (size, selectedSprint) {
-            $modal.open({
-                templateUrl: 'modules/sprints/views/edit-sprint.client.view.html',
-                controller: function ($scope, $modalInstance, sprint) {
-                    $scope.sprint = sprint;
 
-                    $scope.ok = function () {
-                        $modalInstance.close($scope.sprint);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                    };
-                },
-                size: size,
-                resolve: {
-                    sprint: function () {
-                        return selectedSprint;
-                    }
-                }
-            });
-        };
-
-        $scope.sprintReview = function (size, selectedSprint, setStories) {
-            $modal.open({
-                templateUrl: 'modules/sprints/views/sprint-review.client.view.html',
-                controller: function ($scope, $modalInstance, sprint, stories) {
-                    $scope.sprint = sprint;
-
-                    $scope.stories = stories;
-
-                    $scope.ok = function () {
-                        $modalInstance.close($scope.sprint);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                    };
-                },
-                size: size,
-                resolve: {
-                    sprint: function () {
-                        return selectedSprint;
-                    },
-                    stories: function () {
-                        return setStories;
-                    }
-                }
-            });
-        };
-
-        $scope.sprintRestrospective = function (size, selectedSprint) {
-            $modal.open({
-                templateUrl: 'modules/sprints/views/sprint-retrospective.client.view.html',
-                controller: function ($scope, $modalInstance, sprint) {
-                    $scope.sprint = sprint;
-
-                    $scope.ok = function () {
-                        $modalInstance.close($scope.sprint);
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                    };
-                },
-                size: size,
-                resolve: {
-                    sprint: function () {
-                        return selectedSprint;
-                    }
-                }
-            });
-        };
-
-        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
-            $modal.open({
-                templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
-                controller: SprintBurnDownChartController,
-                size: size,
-                resolve: {
-                    sprint: function () {
-                        return selectedSprint;
-                    },
-                    stories: function () {
-                        return setStories;
-                    }
-                }
-            });
-        };
 
         // Sockets
-
 
         //Phases
         SocketSprint.on('on.phase.created', function(phase) {
@@ -513,95 +625,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             $scope.sprint = sprint;
         });
 
-        var SprintBurnDownChartController = function ($scope, $modalInstance, sprint, stories) {
-            $scope.authentication = Authentication;
 
-            // If user is not signed in then redirect back home
-            if (!$scope.authentication.user) $location.path('/');
-
-            $scope.stories = stories;
-
-            $scope.ok = function () {
-                $modalInstance.close(sprint);
-            };
-
-            var currentData = [],
-                estimateData = [],
-                currentStoryPoints = 0,
-                totalStoryPoints = 0,
-                today = new Date(),
-                modified = false;
-
-            function dayDiff(first, second) {
-                return (second-first)/(1000*60*60*24);
-            }
-
-            var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
-            var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
-
-            angular.forEach(stories, function (story) {
-                if (!story.storyFinished)
-                    currentStoryPoints += story.storyPoint;
-                totalStoryPoints += story.storyPoint;
-            });
-
-            var d = (totalStoryPoints / (totalDays - 1) );
-            for (var k = 0; k < totalDays; k++) {
-                if (k === 0)
-                    estimateData.push(totalStoryPoints);
-                else if (k + 1 === totalDays)
-                    estimateData.push(0);
-                else
-                    estimateData.push(Math.round((estimateData[k-1] - d) * 100) / 100);
-            }
-
-            for (var j = 0; j <= sprint.sprintBurnDownChart.length; j++) {
-                if (!sprint.sprintBurnDownChart.length || sprint.sprintBurnDownChart.length < dayLabel) {
-                    sprint.sprintBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
-                    modified = true;
-                } else if (j < sprint.sprintBurnDownChart.length  && sprint.sprintBurnDownChart[j].day === dayLabel) {
-                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentStoryPoints) {
-                        sprint.sprintBurnDownChart[j].storyPoints = currentStoryPoints;
-                        modified = true;
-                    }
-                }
-
-                if (j < sprint.sprintBurnDownChart.length)
-                    currentData.push(sprint.sprintBurnDownChart[j].storyPoints);
-            }
-
-            if (modified)
-                sprint.$update({ sprintId: sprint._id });
-
-            $scope.chartConfig = {
-                options: {
-                    chart: {
-                        type: 'line',
-                        zoomType: 'x'
-                    }
-                },
-                series: [{
-                    data: currentData, name: 'Actual', color: '#FF0000'
-                }, {
-                    data: estimateData, name: 'Estimated', color: '#66CCFF'
-                }],
-                title: {
-                    text: ''
-                },
-                xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
-                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
-                loading: false,
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                }
-            };
-
-        };
 
     }
 ]);

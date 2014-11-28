@@ -1,0 +1,62 @@
+<section data-ng-controller="SprintsDashboardController">
+    <div class="page-content-wrapper">
+        <!-- Sprint Backlog -->
+        <div class="phase phase-size">
+            <div class="panel panel-default" data-drop="true" ng-model="toggler">
+                <h3 class="panel-heading panel-title">Sprint Backlog</h3>
+                <div class="panel-body">
+                    <ul class="list-group no-bot-padding">
+                        <li class="list-group-item list-group-item-warning" ng-repeat="story in stories" ng-model="story">
+                            <h5>
+                                {{story.storyTitle}}
+                                    <span class="pull-right">
+                                        <button type="button" class="close" ng-click="editStory('', story)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                        <button type="button" class="close" ng-click="addTask('', story)"><span class="btn-xs glyphicon glyphicon-plus"/></button>
+                                        <button type="button" class="close" ng-click="movePB(story)"><span class="btn-xs glyphicon glyphicon-arrow-left"/></button>
+                                    </span>
+                            </h5>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Phases -->
+        <div class="phase phase-size" ng-repeat="phase in phases | orderBy: 'position'">
+            <div class="panel panel-default" data-drop="true" jqyoui-droppable="{onDrop: 'toggleState(phase)'}" ng-model="toggler">
+                <h3 class="panel-heading panel-title">
+                    <a href="" editable-text="phase.phaseName" onaftersave="editPhase(phase)">{{phase.phaseName}}</a>
+                    <button type="button" ng-hide="existTasks(phase)" class="close pull-right" ng-click="deletePhase(phase)"><span class="btn-xs glyphicon glyphicon-remove"></span></button>
+                </h3>
+                <div class="panel-body">
+                    <ul class="list-group no-bot-padding">
+                        <li class="list-group-item" ng-repeat="task in tasks | orderBy: 'position'" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable ng-model="task" ng-if="task.phaseId == phase._id || (task.phaseId == undefined && phase.position == -1)">
+                            <h5>
+                                {{task.taskName}}
+                                    <span class="pull-right">
+                                        <span ng-show="task.taskFinished" class="btn-xs btn-success glyphicon glyphicon-ok"/>
+                                    </span>
+                                <button type="button" class="close" ng-click="editTask('', task)"><span class="btn-xs glyphicon glyphicon-eye-open"/></button>
+                                <button type="button" class="close" ng-click="deleteTask(task)"><span class="btn-xs glyphicon glyphicon-remove"/></button>
+                            </h5>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Add new Phase -->
+        <div class="phase phase-size">
+            <button class="btn btn-link" ng-hide="creatingPhase" ng-click="creatingPhase = true;">Add a phase&hellip;</button>
+            <div class="panel panel-default" ng-show="creatingPhase">
+                <div class="panel-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="PhaseName" placeholder="Title&hellip;" required ng-model="phaseName">
+                        </div>
+                        <button type="submit" class="btn btn-info" ng-click="createPhase(phaseName); creatingPhase = false; phaseName = '';">Save</button>
+                        <button type="reset" ng-click="creatingPhase = false" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
