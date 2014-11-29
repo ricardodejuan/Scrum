@@ -87,6 +87,10 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
             $scope.stories.push( new Stories(story) );
         });
 
+        SocketPB.on('on.story.updated', function(story) {
+            $scope.handleUpdatedStory(story);
+        });
+
         SocketPB.on('on.story.deleted', function(story) {
             $scope.handleDeletedStory(story.id);
         });
@@ -125,6 +129,18 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
             $scope.stories = newStories;
         };
 
+        $scope.handleUpdatedStory = function(story) {
+            var oldStories = $scope.stories,
+                newStories = [];
+
+            angular.forEach(oldStories, function(s) {
+                if (s._id === story._id) newStories.push(new Stories(story));
+                else newStories.push(s);
+            });
+
+            $scope.stories = newStories;
+        };
+
         // Outgoing
         $scope.updateStory = function(story) {
             story.$update({ storyId: story._id });
@@ -133,6 +149,10 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
 
         $scope.editStory = function (size, selectedStory) {
 
+            function updateStoryList(story) {
+                $scope.handleUpdatedStory(story);
+            }
+
             $modal.open({
                 templateUrl: 'modules/stories/views/edit-story.client.view.html',
                 controller: function ($scope, $modalInstance, story) {
@@ -140,8 +160,8 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
 
                     $scope.ok = function () {
                         SocketPB.emit('story.updated', {story: $scope.story, room: $stateParams.projectId});
-                        $scope.stories = $scope.stories;
-                        $modalInstance.close($scope.story);
+                        updateStoryList($scope.story);
+                        $modalInstance.close();
                     };
 
                     $scope.cancel = function () {
