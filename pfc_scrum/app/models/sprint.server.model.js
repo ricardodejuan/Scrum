@@ -31,9 +31,6 @@ var SprintSchema = new Schema({
         type: Date,
         required: true
     },
-    sprintEstimateTime: {
-        type: Date
-    },
     sprintEndTime: {
         type: Date,
         required: true

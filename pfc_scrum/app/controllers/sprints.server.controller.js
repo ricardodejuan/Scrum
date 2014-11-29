@@ -22,7 +22,6 @@ exports.create = function(req, res) {
     var data = { sprintName: req.body.sprintName,
                  sprintDescription: req.body.sprintDescription,
                  sprintStartTime: req.body.sprintStartTime,
-                 sprintEstimateTime: req.body.sprintEstimateTime,
                  sprintEndTime: req.body.sprintEndTime,
                  projectId: req.params.projectId };
     var sprint = new Sprint(data);
