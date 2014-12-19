@@ -11,12 +11,17 @@
 
             <div ng-show="username" data-ng-repeat="user in users">
                 <li>
-                    <a href="" ng-click="addMember(project, user)">
-                        <h4 class="text-left">
-                            <i class="glyphicon glyphicon-user"></i>
-                            {{user.displayName}} - ( {{user.username}} )
-                        </h4>
-                    </a>
+                    <div class="col-md-8">
+                        <a href="" ng-click="addMember(project, user, role)">
+                            <h4 class="text-left">
+                                <i class="glyphicon glyphicon-user"></i>
+                                {{user.displayName}} - ( {{user.username}} )
+                            </h4>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <select data-ng-model="role" ng-options="role for role in roles" id="role" ng-init="role = roles[0]" class="form-control"></select>
+                    </div>
                 </li>
             </div>
         </ul>

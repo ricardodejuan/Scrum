@@ -766,6 +766,13 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
 
+        $scope.roles = [
+            'SCRUM_MASTER',
+            'PRODUCT_OWNER',
+            'TEAM',
+            'STAKEHOLDER'
+        ];
+
         var timeout;
         $scope.$watch('username', function(newVal) {
             if (newVal) {
@@ -782,6 +789,7 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
 
         // Add member to project
         $scope.addMember = function(selectedProject, user) {
+
             $http.put('/projects/' + selectedProject._id + '/join', {'users': [user]}).success(function(response) {
                 $scope.users = null;
             }).error(function(response) {
@@ -1667,6 +1675,10 @@ storiesApp.controller('StoriesController', ['$scope', 'SocketPB', 'Stories', 'Au
         // Incoming
         SocketPB.on('on.story.created', function(story) {
             $scope.stories.push( new Stories(story) );
+        });
+
+        SocketPB.on('on.story.updated', function(story) {
+            $scope.handleUpdatedStory(story);
         });
 
         SocketPB.on('on.story.deleted', function(story) {

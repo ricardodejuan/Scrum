@@ -249,6 +249,13 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
         // If user is not signed in then redirect back home
         if (!$scope.authentication.user) $location.path('/');
 
+        $scope.roles = [
+            'SCRUM_MASTER',
+            'PRODUCT_OWNER',
+            'TEAM',
+            'STAKEHOLDER'
+        ];
+
         var timeout;
         $scope.$watch('username', function(newVal) {
             if (newVal) {
@@ -264,7 +271,8 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
         });
 
         // Add member to project
-        $scope.addMember = function(selectedProject, user) {
+        $scope.addMember = function(selectedProject, user, role) {
+            user.role = role;
             $http.put('/projects/' + selectedProject._id + '/join', {'users': [user]}).success(function(response) {
                 $scope.users = null;
             }).error(function(response) {

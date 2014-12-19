@@ -81,7 +81,7 @@ ProjectSchema.methods = {
         _.forEach(users, function (user) {
             var index = _.findIndex(_this.users, { 'userId': new ObjectId(user._id) });
             if (index === -1) {
-                var u = {'userId': new ObjectId(user._id)};
+                var u = {'userId': new ObjectId(user._id), 'role': [ user.role ]};
                 _this.users.addToSet (u);
                 if (--usersToGo === 0) {
                     _this.save(callback);
