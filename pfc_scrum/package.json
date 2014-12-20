@@ -12,7 +12,7 @@
   "scripts": {
     "start": "grunt",
     "test": "grunt test",
-    "postinstall": "bower install --config.interactive=false"
+    "postinstall": "bower cache clean && bower install"
   },
   "dependencies": {
     "async": "~0.9.0",
