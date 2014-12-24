@@ -27,6 +27,7 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 taskName: this.taskName,
                 taskDescription: this.taskDescription,
                 taskPriority: this.taskPriority,
+                taskHours: this.taskHours,
                 taskRemark: this.taskRemark,
                 taskRuleValidation: this.taskRuleValidation
             });
@@ -37,6 +38,7 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 $scope.taskName = '';
                 $scope.taskDescription = '';
                 $scope.taskPriority = {};
+                $scope.taskHours = '';
                 $scope.taskRemark = '';
                 $scope.taskRuleValidation = '';
             });

@@ -788,8 +788,8 @@ projectsApp.controller('ProjectsAddMembersController', ['$scope', '$stateParams'
         });
 
         // Add member to project
-        $scope.addMember = function(selectedProject, user) {
-
+        $scope.addMember = function(selectedProject, user, role) {
+            user.role = role;
             $http.put('/projects/' + selectedProject._id + '/join', {'users': [user]}).success(function(response) {
                 $scope.users = null;
             }).error(function(response) {
@@ -1035,6 +1035,18 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
         };
 
         $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
+
+            var setTasks = [];
+
+            angular.forEach(setStories, function (story) {
+
+                Tasks.query({ storyId: story._id }, function (result) {
+                    angular.forEach(result, function (t) {
+                        setTasks.push(t);
+                    });
+                });
+            });
+
             $modal.open({
                 templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
                 controller: SprintBurnDownChartController,
@@ -1045,12 +1057,15 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                     },
                     stories: function () {
                         return setStories;
+                    },
+                    tasks: function () {
+                        return setTasks;
                     }
                 }
             });
         };
 
-        var SprintBurnDownChartController = ["$scope", "$modalInstance", "sprint", "stories", function ($scope, $modalInstance, sprint, stories) {
+        var SprintBurnDownChartController = ["$scope", "$modalInstance", "sprint", "stories", "tasks", function ($scope, $modalInstance, sprint, stories, tasks) {
             $scope.authentication = Authentication;
 
             // If user is not signed in then redirect back home
@@ -1064,8 +1079,8 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             var currentData = [],
                 estimateData = [],
-                currentStoryPoints = 0,
-                totalStoryPoints = 0,
+                currentHours = 0,
+                totalHours = 0,
                 today = new Date(),
                 modified = false;
 
@@ -1076,16 +1091,16 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             var totalDays = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(sprint.sprintEndTime).getTime()) + 1;
             var dayLabel = dayDiff(new Date(sprint.sprintStartTime).getTime(), new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) + 1;
 
-            angular.forEach(stories, function (story) {
-                if (!story.storyFinished)
-                    currentStoryPoints += story.storyPoint;
-                totalStoryPoints += story.storyPoint;
+            angular.forEach(tasks, function (t) {
+                if (!t.taskFinished)
+                    currentHours += t.taskHours;
+                totalHours += t.taskHours;
             });
 
-            var d = (totalStoryPoints / (totalDays - 1) );
+            var d = (totalHours / (totalDays - 1) );
             for (var k = 0; k < totalDays; k++) {
                 if (k === 0)
-                    estimateData.push(totalStoryPoints);
+                    estimateData.push(totalHours);
                 else if (k + 1 === totalDays)
                     estimateData.push(0);
                 else
@@ -1094,11 +1109,11 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
             for (var j = 0; j <= sprint.sprintBurnDownChart.length; j++) {
                 if (!sprint.sprintBurnDownChart.length || sprint.sprintBurnDownChart.length < dayLabel) {
-                    sprint.sprintBurnDownChart.push({ storyPoints: currentStoryPoints, day: dayLabel});
+                    sprint.sprintBurnDownChart.push({ storyPoints: currentHours, day: dayLabel});
                     modified = true;
                 } else if (j < sprint.sprintBurnDownChart.length  && sprint.sprintBurnDownChart[j].day === dayLabel) {
-                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentStoryPoints) {
-                        sprint.sprintBurnDownChart[j].storyPoints = currentStoryPoints;
+                    if (sprint.sprintBurnDownChart[j].storyPoints !== currentHours) {
+                        sprint.sprintBurnDownChart[j].storyPoints = currentHours;
                         modified = true;
                     }
                 }
@@ -1126,7 +1141,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
                     text: ''
                 },
                 xAxis: {currentMin: 0, currentMax: totalDays, minRange: 1, title: { text: 'Days' }},
-                yAxis: {currentMin: 0, currentMax: totalStoryPoints, minRange: 2, title: { text: 'Story Points' }},
+                yAxis: {currentMin: 0, currentMax: totalHours, minRange: 2, title: { text: 'Hours' }},
                 loading: false,
                 plotOptions: {
                     line: {
@@ -1926,6 +1941,7 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 taskName: this.taskName,
                 taskDescription: this.taskDescription,
                 taskPriority: this.taskPriority,
+                taskHours: this.taskHours,
                 taskRemark: this.taskRemark,
                 taskRuleValidation: this.taskRuleValidation
             });
@@ -1936,6 +1952,7 @@ tasksApp.controller('TasksCreateUpdateController', ['$scope', '$stateParams', 'A
                 $scope.taskName = '';
                 $scope.taskDescription = '';
                 $scope.taskPriority = {};
+                $scope.taskHours = '';
                 $scope.taskRemark = '';
                 $scope.taskRuleValidation = '';
             });
