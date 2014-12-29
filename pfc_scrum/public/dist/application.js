@@ -1004,11 +1004,18 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             sprintId: $stateParams.sprintId
         });
 
+        var tasks = [];
         // Get Stories and Tasks
         $http.get('/projects/' + $stateParams.projectId + '/sprints/' + $stateParams.sprintId + '/backlog').then(function (result) {
             angular.forEach(result.data, function (s) {
                 $scope.stories.push( new Stories(s) );
+                    Tasks.query({ storyId: s._id }, function (result) {
+                        angular.forEach(result, function (t) {
+                            tasks.push(t);
+                        });
+                    });
             });
+            $scope.tasks = tasks;
         });
 
         $scope.editSprint = function (size, selectedSprint) {
@@ -1034,19 +1041,7 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             });
         };
 
-        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories) {
-
-            var setTasks = [];
-
-            angular.forEach(setStories, function (story) {
-
-                Tasks.query({ storyId: story._id }, function (result) {
-                    angular.forEach(result, function (t) {
-                        setTasks.push(t);
-                    });
-                });
-            });
-
+        $scope.sprintBurnDownChart = function (size, selectedSprint, setStories, setTasks) {
             $modal.open({
                 templateUrl: 'modules/sprints/views/sprint-burndownchart.client.view.html',
                 controller: SprintBurnDownChartController,
@@ -1067,7 +1062,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
 
         var SprintBurnDownChartController = ["$scope", "$modalInstance", "sprint", "stories", "tasks", function ($scope, $modalInstance, sprint, stories, tasks) {
             $scope.authentication = Authentication;
-
             // If user is not signed in then redirect back home
             if (!$scope.authentication.user) $location.path('/');
 

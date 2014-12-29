@@ -166,8 +166,6 @@ sprintsApp.controller('SprintsViewController', ['$scope', '$stateParams', 'Authe
             $scope.ok = function () {
                 $modalInstance.close(sprint);
             };
-            $log.info(tasks);
-
 
             var currentData = [],
                 estimateData = [],
