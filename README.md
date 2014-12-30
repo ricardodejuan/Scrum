@@ -23,4 +23,4 @@ $ grunt
 ```
 
 ## Live Example
-[]().
+[https://scrumagile.herokuapp.com](https://scrumagile.herokuapp.com).
