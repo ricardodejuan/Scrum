@@ -17,7 +17,11 @@ require('./config/passport')();
 require('./config/socketio')(app);
 
 // Start the app by listening on <port>
-app.get('server').listen(config.port);
+if (process.env.NODE_ENV === 'secure') {
+    app.listen(config.port);
+} else {
+    app.get('server').listen(config.port);
+}
 
 // Expose app
 module.exports = app;

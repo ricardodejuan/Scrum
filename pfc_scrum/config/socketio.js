@@ -9,12 +9,17 @@ var socketio = require('socket.io');
 
 module.exports = function (app) {
 
+    var io;
+    var server;
     // Attach Socket.io
-    var server = http.createServer(app);
-    var io = socketio.listen(server);
+    if (process.env.NODE_ENV === 'secure') {
+        io = socketio.listen(app);
+    } else {
+        server = http.createServer(app);
+        io = socketio.listen(server);
+        app.set('server', server);
+    }
 
-    app.set('socketio', io);
-    app.set('server', server);
 
     // Socket.io NameSpace Stories
     var nspStories = io.of('/stories');
