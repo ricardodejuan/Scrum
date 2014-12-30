@@ -1,8 +1,8 @@
 'use strict';
 
-var debug = require('debug')('pfc_scrum');
 var init = require('./config/init')();
 var config = require('./config/config');
+var chalk = require('chalk');
 
 // Database Connection
 var db = require('./config/database')(config);
@@ -19,14 +19,16 @@ require('./config/socketio')(app);
 // Start the app by listening on <port>
 app.get('server').listen(config.port);
 
-
-/*io.sockets.on('connection', function(socket) {
-    socket.emit('news', {
-        hello: 'world'
-    });
-    socket.on('my other event', function(data) {
-        console.log(data);
-    });
-});*/
-
+// Expose app
 module.exports = app;
+
+// Logging initialization
+console.log('--');
+console.log(chalk.green(config.app.title + ' application started'));
+console.log(chalk.green('Environment:\t\t\t' + process.env.NODE_ENV));
+console.log(chalk.green('Port:\t\t\t\t' + config.port));
+console.log(chalk.green('Database:\t\t\t' + config.db.uri));
+if (process.env.NODE_ENV === 'secure') {
+    console.log(chalk.green('HTTPs:\t\t\t\ton'));
+}
+console.log('--');
