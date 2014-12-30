@@ -26,13 +26,10 @@ $ bower install
 $ grunt
 ```
 
-## Running in a secure environment
+## Running Your Application in a Secure Environment
 To run your application in a secure manner you'll need to use OpenSSL and generate a set of self-signed certificates. Unix-based users can use the following command:
 ```bash
 $ sh ./scripts/generate-ssl-certs.sh
-```
-## Running Your Application in secure environment
-```
 $ grunt secure
 ```
 
